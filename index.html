@@ -38,6 +38,7 @@
         #loading-overlay { display: none; }
         #loading-overlay.active { display: flex; }
         
+        /* Filter Modal Animation (Center Scale) */
         #filter-menu { transition: visibility 0s linear 0.2s, opacity 0.2s linear; opacity: 0; visibility: hidden; }
         #filter-menu.open { transition-delay: 0s; opacity: 1; visibility: visible; }
         #filter-menu-card { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transform: translateY(-20px) scale(0.95); }
@@ -49,7 +50,7 @@
     <!-- PANTALLA DE CARGA -->
     <div id="loading-overlay" class="fixed inset-0 z-[100] bg-white flex items-center justify-center flex-col gap-4">
         <div class="w-10 h-10 border-4 border-blue-200 border-t-[#007AFF] rounded-full animate-spin"></div>
-        <p class="text-sm font-medium text-gray-500 animate-pulse">Cargando...</p>
+        <p class="text-sm font-medium text-gray-500 animate-pulse">Conectando con la nube...</p>
     </div>
 
     <!-- PANTALLA DE AUTENTICACIÓN -->
@@ -61,31 +62,52 @@
 
         <div class="bg-white/80 backdrop-blur-xl w-full max-w-md p-8 rounded-3xl shadow-2xl border border-white z-10 fade-in">
             <div class="text-center mb-8">
-                <div class="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg"><i class="ph-bold ph-link"></i></div>
+                <div class="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg">
+                    <i class="ph-bold ph-link"></i>
+                </div>
                 <h1 class="text-2xl font-bold text-gray-900">BioLink Studio</h1>
                 <p class="text-sm text-gray-500 mt-2">Crea tu página personal en minutos.</p>
             </div>
+
+            <!-- Tabs Login/Register -->
             <div class="flex p-1 bg-gray-100 rounded-xl mb-6">
                 <button onclick="toggleAuthMode('login')" id="btn-tab-login" class="flex-1 py-2 text-sm font-medium rounded-lg bg-white shadow-sm text-gray-900 transition-all">Iniciar Sesión</button>
                 <button onclick="toggleAuthMode('register')" id="btn-tab-register" class="flex-1 py-2 text-sm font-medium rounded-lg text-gray-500 hover:text-gray-900 transition-all">Registrarse</button>
             </div>
+
+            <!-- Login Form -->
             <div id="login-form" class="space-y-4">
                 <input type="email" id="login-email" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Correo electrónico">
                 <input type="password" id="login-password" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Contraseña">
-                <button onclick="handleLogin()" class="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-3 rounded-xl text-sm font-bold shadow-lg transition-transform active:scale-95">Entrar</button>
+                <button onclick="handleLogin()" class="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition-transform active:scale-95">
+                    Entrar
+                </button>
             </div>
+
+            <!-- Register Form -->
             <div id="register-form" class="space-y-4 hidden">
                 <div class="relative">
                     <input type="text" id="reg-username" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Nombre de usuario" oninput="checkUsername(this.value)">
                     <div id="username-status" class="absolute right-3 top-3.5 text-lg hidden"></div>
                 </div>
                 <p id="username-msg" class="text-xs text-red-500 hidden pl-1"></p>
+                
                 <input type="email" id="reg-email" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Correo electrónico">
                 <input type="password" id="reg-password" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Contraseña">
-                <button onclick="handleRegister()" id="btn-register-submit" class="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-3 rounded-xl text-sm font-bold shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">Crear Cuenta</button>
+                <button onclick="handleRegister()" id="btn-register-submit" class="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+                    Crear Cuenta
+                </button>
             </div>
-            <div class="my-6 flex items-center gap-3"><div class="h-px bg-gray-200 flex-1"></div><span class="text-xs text-gray-400 font-medium">O CONTINUAR CON</span><div class="h-px bg-gray-200 flex-1"></div></div>
-            <button onclick="handleGoogleLogin()" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors"><i class="ph-bold ph-google-logo text-lg text-red-500"></i> Google</button>
+
+            <div class="my-6 flex items-center gap-3">
+                <div class="h-px bg-gray-200 flex-1"></div>
+                <span class="text-xs text-gray-400 font-medium">O CONTINUAR CON</span>
+                <div class="h-px bg-gray-200 flex-1"></div>
+            </div>
+
+            <button onclick="handleGoogleLogin()" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                <i class="ph-bold ph-google-logo text-lg text-red-500"></i> Google
+            </button>
         </div>
     </div>
 
@@ -93,20 +115,30 @@
     <div id="app-screen" class="h-full flex flex-col lg:flex-row hidden">
         <!-- LEFT PANEL -->
         <div id="left-panel" class="w-full h-full flex flex-col bg-white border-r border-gray-200 z-10 relative transition-all duration-300">
+            <!-- Header -->
             <header class="h-16 flex items-center justify-between px-8 border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-20">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center"><i class="ph-bold ph-link text-xl"></i></div>
                     <h1 class="font-semibold text-lg tracking-tight">BioLink Studio</h1>
                 </div>
+                
                 <div class="flex items-center gap-3">
+                    <!-- Editor Actions -->
                     <div id="editor-actions" class="flex gap-2 hidden">
                         <button onclick="saveCurrentPage()" class="p-2 text-gray-500 hover:text-[#007AFF] hover:bg-blue-50 rounded-lg transition-colors" title="Guardar"><i class="ph-bold ph-floppy-disk text-xl"></i></button>
                         <button onclick="publishPage()" class="bg-[#007AFF] hover:bg-[#0062cc] text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors shadow-md">Publicar</button>
                     </div>
+
+                    <!-- User Menu -->
                     <div class="relative">
-                        <button onclick="toggleUserMenu()" class="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 hover:border-blue-500 transition-colors"><img id="header-user-avatar" src="https://via.placeholder.com/100" class="w-full h-full object-cover"></button>
+                        <button onclick="toggleUserMenu()" class="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 hover:border-blue-500 transition-colors">
+                            <img id="header-user-avatar" src="https://via.placeholder.com/100" class="w-full h-full object-cover">
+                        </button>
                         <div id="user-menu" class="dropdown-menu hidden absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-                            <div class="px-4 py-3 border-b border-gray-50"><p id="menu-username" class="text-sm font-bold text-gray-900 truncate">Usuario</p><p id="menu-email" class="text-xs text-gray-500 truncate">user@email.com</p></div>
+                            <div class="px-4 py-3 border-b border-gray-50">
+                                <p id="menu-username" class="text-sm font-bold text-gray-900 truncate">Usuario</p>
+                                <p id="menu-email" class="text-xs text-gray-500 truncate">user@email.com</p>
+                            </div>
                             <button onclick="openUserSettingsModal('profile')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"><i class="ph-bold ph-user"></i> Perfil</button>
                             <button onclick="openUserSettingsModal('settings')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"><i class="ph-bold ph-gear"></i> Configuración</button>
                             <div class="h-px bg-gray-50 my-1"></div>
@@ -115,9 +147,13 @@
                     </div>
                 </div>
             </header>
+
+            <!-- Tabs -->
             <div class="px-8 pt-6 pb-2">
                 <div class="flex bg-[#F5F5F7] p-1 rounded-xl w-fit overflow-x-auto">
-                    <button id="tab-dashboard" onclick="switchToDashboard()" class="px-6 py-1.5 rounded-lg text-sm font-medium bg-white shadow-sm text-black transition-all flex items-center gap-2 whitespace-nowrap"><i class="ph-bold ph-squares-four"></i> Dashboard</button>
+                    <button id="tab-dashboard" onclick="switchToDashboard()" class="px-6 py-1.5 rounded-lg text-sm font-medium bg-white shadow-sm text-black transition-all flex items-center gap-2 whitespace-nowrap">
+                        <i class="ph-bold ph-squares-four"></i> Dashboard
+                    </button>
                     <div id="editor-tabs" class="flex hidden">
                         <div class="w-px bg-gray-300 mx-1 h-6 self-center"></div>
                         <button id="tab-content" onclick="switchTab('content')" class="px-6 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-black transition-all">Contenido</button>
@@ -127,82 +163,279 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Content Area -->
             <div class="flex-1 overflow-y-auto custom-scroll p-8 pb-32" id="editor-area">
+                
+                <!-- DASHBOARD -->
                 <div id="section-dashboard" class="max-w-5xl mx-auto w-full">
-                    <div class="flex items-center justify-between mb-8"><div><h2 class="text-2xl font-bold text-gray-900">Mis Páginas</h2></div><button onclick="createNewPage()" class="bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg flex items-center gap-2"><i class="ph-bold ph-plus"></i> Crear Nueva</button></div>
-                    <div id="dashboard-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"></div>
-                    <div id="archived-section" class="hidden"><h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-t border-gray-200 pt-6">Archivados</h3><div id="archived-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-75"></div></div>
+                    <!-- Header Actions -->
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Mis Páginas</h2>
+                            <p class="text-sm text-gray-500 mt-1">Gestiona todos tus enlaces desde un solo lugar.</p>
+                        </div>
+                        <button onclick="createNewPage()" class="bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition-colors shadow-lg shadow-black/10 flex items-center gap-2">
+                            <i class="ph-bold ph-plus"></i> Crear Nueva
+                        </button>
+                    </div>
+
+                    <!-- Active Pages -->
+                    <div id="dashboard-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                        <!-- Cards injected via JS -->
+                    </div>
+
+                    <!-- Archived Pages Section (Hidden by default) -->
+                    <div id="archived-section" class="hidden">
+                         <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-t border-gray-200 pt-6">Archivados</h3>
+                         <div id="archived-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-75">
+                            <!-- Archived cards injected here -->
+                         </div>
+                    </div>
                 </div>
+
+                <!-- SECTION: CONTENT (EDITOR) -->
                 <div id="section-content" class="space-y-8 max-w-2xl hidden">
-                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Perfil de la Página</h2><div class="bg-white p-6 rounded-2xl border flex gap-4"><div class="relative group cursor-pointer" onclick="openProfileModal()"><img id="input-avatar-preview" src="" class="w-20 h-20 rounded-full object-cover border-4"><div class="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i class="ph-bold ph-camera text-white text-2xl"></i></div></div><div class="flex-1 space-y-3"><input type="text" id="input-name" placeholder="Nombre visible" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm" oninput="updateState()"><input type="text" id="input-bio" placeholder="Biografía corta" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm" oninput="updateState()"></div></div></section>
-                    <section><div class="flex justify-between mb-4"><h2 class="text-xs font-bold text-gray-400 uppercase">Redes <span id="social-count"></span></h2><button onclick="addSocial()" id="btn-add-social" class="text-blue-500 text-sm font-medium flex gap-1"><i class="ph-bold ph-plus"></i> Añadir</button></div><div id="socials-container" class="space-y-3"></div></section>
-                    <section><div class="flex justify-between mb-4"><h2 class="text-xs font-bold text-gray-400 uppercase">Enlaces</h2><button onclick="addLink()" class="text-blue-500 text-sm font-medium flex gap-1"><i class="ph-bold ph-plus"></i> Añadir</button></div><div id="links-container" class="space-y-3"></div></section>
+                    
+                    <!-- Profile Section -->
+                    <section>
+                        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Perfil</h2>
+                        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-5">
+                            <div class="flex items-center gap-4">
+                                <!-- Avatar Trigger -->
+                                <div class="relative group cursor-pointer" onclick="openProfileModal()">
+                                    <img id="input-avatar-preview" src="" class="w-20 h-20 rounded-full object-cover border-4 border-gray-50 shadow-sm transition-transform group-hover:scale-105">
+                                    <div class="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-[1px]">
+                                        <i class="ph-bold ph-camera text-white text-2xl drop-shadow-md"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex-1 space-y-3">
+                                    <input type="text" id="input-name" placeholder="Tu Nombre" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm font-medium text-gray-900 placeholder-gray-400" oninput="updateState()">
+                                    <input type="text" id="input-bio" placeholder="Tu Biografía" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm text-gray-700 placeholder-gray-400" oninput="updateState()">
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-400 pl-1">Haz clic en la imagen para cambiarla.</p>
+                        </div>
+                    </section>
+
+                    <!-- Social Icons Section -->
+                    <section>
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Iconos Sociales <span id="social-count" class="text-xs font-normal opacity-50 ml-1">(0/4)</span></h2>
+                            <button onclick="addSocial()" id="btn-add-social" class="flex items-center gap-1.5 text-[#007AFF] hover:text-[#005bb5] text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <i class="ph-bold ph-plus"></i> Añadir
+                            </button>
+                        </div>
+
+                        <div id="socials-container" class="space-y-3">
+                            <!-- Social Icons injected here -->
+                        </div>
+                    </section>
+
+                    <!-- Links Section -->
+                    <section>
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Enlaces</h2>
+                            <button onclick="addLink()" class="flex items-center gap-1.5 text-[#007AFF] hover:text-[#005bb5] text-sm font-medium transition-colors">
+                                <i class="ph-bold ph-plus"></i> Añadir Enlace
+                            </button>
+                        </div>
+
+                        <div id="links-container" class="space-y-3">
+                            <!-- Links will be injected here via JS -->
+                        </div>
+                    </section>
                 </div>
+
+                <!-- SECTION: DESIGN -->
                 <div id="section-design" class="space-y-8 max-w-2xl hidden">
-                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Temas</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="themes-container">
-                        <button onclick="setTheme('snow')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-white"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Snow</span></button>
-                        <button onclick="setTheme('midnight')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gray-900"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Midnight</span></button>
-                        <button onclick="setTheme('blue')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white">Ocean</span></button>
-                        <button onclick="setTheme('sand')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-[#f3e9dc]"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Sand</span></button>
-                        <button onclick="setTheme('forest')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gradient-to-br from-emerald-800 to-teal-900"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white/80">Forest</span></button>
-                        <button onclick="setTheme('lavender')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-[#F3E8FF]"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-[#4A1D96]">Lavender</span></button>
-                        <button onclick="setTheme('sunset')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gradient-to-br from-orange-400 to-pink-500"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white">Sunset</span></button>
-                        <button onclick="setTheme('monochrome')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gray-100 border-2 border-black m-2 rounded-xl"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-black">Noir</span></button>
-                    </div></section>
-                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Estilo de Botones</h2><div id="button-styles-container" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm grid grid-cols-3 gap-4"></div></section>
+                    <!-- Themes -->
+                    <section>
+                        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Temas</h2>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <!-- Existing Themes -->
+                            <button onclick="setTheme('snow')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm">
+                                <div class="absolute inset-0 bg-white"></div>
+                                <span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Snow</span>
+                            </button>
+                            <button onclick="setTheme('midnight')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm">
+                                <div class="absolute inset-0 bg-gray-900"></div>
+                                <span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Midnight</span>
+                            </button>
+                            <button onclick="setTheme('blue')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm">
+                                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600"></div>
+                                <span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white">Ocean</span>
+                            </button>
+                            <button onclick="setTheme('sand')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm">
+                                <div class="absolute inset-0 bg-[#f3e9dc]"></div>
+                                <span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Sand</span>
+                            </button>
+
+                            <!-- New Themes -->
+                            <button onclick="setTheme('forest')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm">
+                                <div class="absolute inset-0 bg-gradient-to-br from-emerald-800 to-teal-900"></div>
+                                <span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white/80">Forest</span>
+                            </button>
+                             <button onclick="setTheme('lavender')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm">
+                                <div class="absolute inset-0 bg-[#F3E8FF]"></div>
+                                <span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-[#4A1D96]">Lavender</span>
+                            </button>
+                            <button onclick="setTheme('sunset')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm">
+                                <div class="absolute inset-0 bg-gradient-to-br from-orange-400 to-pink-500"></div>
+                                <span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white">Sunset</span>
+                            </button>
+                            <button onclick="setTheme('monochrome')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm">
+                                <div class="absolute inset-0 bg-gray-100 border-2 border-black m-2 rounded-xl"></div>
+                                <span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-black">Noir</span>
+                            </button>
+                        </div>
+                    </section>
+
+                    <!-- Button Styles -->
+                    <section>
+                        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Estilo de Botones</h2>
+                        <div id="button-styles-container" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm grid grid-cols-3 gap-4">
+                            <!-- Buttons injected via JS -->
+                        </div>
+                    </section>
                 </div>
+
+                <!-- SECTION: ORGANIZE -->
                 <div id="section-organize" class="space-y-8 max-w-2xl hidden">
-                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Organizar Bloques</h2><p class="text-sm text-gray-500 mb-4">Arrastra para cambiar el orden.</p><div id="sections-container" class="space-y-3"></div></section>
+                    <section>
+                        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Organizar Bloques</h2>
+                        <p class="text-sm text-gray-500 mb-4">Arrastra para cambiar el orden de las secciones en tu página.</p>
+                        
+                        <div id="sections-container" class="space-y-3">
+                            <!-- Sections injected here -->
+                        </div>
+                    </section>
                 </div>
+
+                <!-- SECTION: SHOP -->
                 <div id="section-shop" class="space-y-8 max-w-2xl hidden">
-                    <section><div class="flex justify-between mb-4"><h2 class="text-xs font-bold text-gray-400 uppercase">Productos</h2><div class="flex gap-2"><button onclick="openCategoryManager()" class="text-gray-500 text-sm border px-3 py-1.5 rounded-lg flex gap-1"><i class="ph-bold ph-list"></i> Cat.</button><button onclick="addProduct()" class="text-white bg-blue-500 px-3 py-1.5 rounded-lg text-sm flex gap-1"><i class="ph-bold ph-plus"></i> Prod.</button></div></div><div id="products-editor-container" class="space-y-3"></div></section>
+                    <section>
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Mis Productos</h2>
+                            <div class="flex gap-2">
+                                <button onclick="openCategoryManager()" class="flex items-center gap-1.5 text-gray-500 hover:text-black text-sm font-medium transition-colors bg-white border border-gray-200 px-3 py-1.5 rounded-lg hover:border-gray-300">
+                                    <i class="ph-bold ph-list"></i> Categorías
+                                </button>
+                                <button onclick="addProduct()" class="flex items-center gap-1.5 text-white bg-[#007AFF] hover:bg-[#0062cc] px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm shadow-blue-500/20">
+                                    <i class="ph-bold ph-plus"></i> Producto
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Products Editor Container -->
+                        <div id="products-editor-container" class="space-y-3">
+                            <!-- Products injected here -->
+                        </div>
+                    </section>
                 </div>
+
             </div>
         </div>
 
-        <!-- RIGHT PANEL -->
-        <div id="right-panel" class="hidden w-2/5 h-full bg-[#F5F5F7] items-center justify-center relative overflow-hidden border-l transition-all duration-300">
+        <!-- RIGHT PANEL: PREVIEW -->
+        <div id="right-panel" class="hidden w-2/5 h-full bg-[#F5F5F7] items-center justify-center relative overflow-hidden border-l border-gray-200 transition-all duration-300">
+            <!-- Blobs -->
             <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
             <div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+
+            <!-- Phone Frame -->
             <div id="preview-screen" class="relative w-[340px] h-[680px] bg-black rounded-[3rem] device-frame p-3 z-10 transition-transform duration-500 hover:scale-[1.01]">
                 <div class="absolute top-0 left-1/2 transform -translate-x-1/2 h-7 w-32 bg-black rounded-b-2xl z-30"></div>
+                <!-- Scrollable Container -->
                 <div id="preview-scroll-container" class="w-full h-full bg-white rounded-[2.2rem] overflow-hidden overflow-y-auto relative no-scrollbar">
                     <div id="preview-bg" class="min-h-full w-full bg-white pt-16 pb-8 px-6 flex flex-col items-center transition-colors duration-500">
+                        
+                        <!-- VIEW: HOME -->
                         <div id="view-home" class="w-full flex flex-col items-center">
-                            <div id="preview-sections-container" class="w-full flex flex-col items-center gap-6"></div>
-                            <div class="mt-auto pt-10 pb-6"><p class="text-[10px] uppercase tracking-widest font-bold opacity-30">BioLink Studio</p></div>
+                            <!-- Sections Container -->
+                            <div id="preview-sections-container" class="w-full flex flex-col items-center gap-6">
+                                <!-- Dynamic Content Injected Here -->
+                            </div>
+                            <!-- Footer -->
+                            <div class="mt-auto pt-10 pb-6">
+                                <p class="text-[10px] uppercase tracking-widest font-bold opacity-30">Con tecnología de BioLink Studio</p>
+                            </div>
                         </div>
+
+                        <!-- VIEW: CATALOG -->
                         <div id="view-catalog" class="w-full hidden flex-col h-full relative">
-                            <div class="flex items-center justify-between mb-6 pt-2 w-full px-1"><button onclick="setPreviewView('home')" class="p-2 rounded-full hover:bg-black/5"><i class="ph-bold ph-arrow-left text-xl"></i></button><h2 class="text-lg font-bold text-center">Catálogo</h2><button onclick="openFilterMenu()" class="p-2 rounded-full hover:bg-black/5"><i class="ph-bold ph-faders text-xl"></i></button></div>
-                            <div id="active-filter-display" class="w-full mb-4 hidden"><div class="inline-flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full text-xs font-medium text-gray-600"><span>Filtro: <span id="active-filter-name" class="text-black">Todo</span></span><button onclick="selectFilter('all')" class="hover:text-red-500"><i class="ph-bold ph-x"></i></button></div></div>
+                            <!-- Header -->
+                            <div class="flex items-center justify-between mb-6 pt-2 w-full px-1">
+                                <button onclick="setPreviewView('home')" class="p-2 rounded-full hover:bg-black/5 transition-colors">
+                                    <i class="ph-bold ph-arrow-left text-xl"></i>
+                                </button>
+                                <h2 class="text-lg font-bold text-center">Catálogo</h2>
+                                <button onclick="openFilterMenu()" class="p-2 rounded-full hover:bg-black/5 transition-colors">
+                                    <i class="ph-bold ph-faders text-xl"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Current Filter Display -->
+                            <div id="active-filter-display" class="w-full mb-4 hidden">
+                                 <div class="inline-flex items-center gap-2 bg-gray-100 px-3 py-1.5 rounded-full text-xs font-medium text-gray-600">
+                                    <span>Filtro: <span id="active-filter-name" class="text-black">Todo</span></span>
+                                    <button onclick="selectFilter('all')" class="hover:text-red-500"><i class="ph-bold ph-x"></i></button>
+                                 </div>
+                            </div>
+
+                            <!-- Full Product List -->
                             <div id="preview-products-catalog" class="space-y-4 pb-20 w-full overflow-y-auto no-scrollbar"></div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Filter Overlay Menu (Fixed Position) -->
+                <div id="filter-menu" class="absolute -top-3 -left-3 -right-3 -bottom-3 z-50 flex items-start justify-center pt-24 rounded-[3rem] overflow-hidden pointer-events-none hidden">
+                    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto" onclick="closeFilterMenu()"></div>
+                    <div id="filter-menu-card" class="relative bg-white w-full max-w-[280px] rounded-3xl shadow-2xl p-5 pointer-events-auto transform scale-95 transition-all duration-200">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-bold text-gray-900">Categorías</h3>
+                            <button onclick="closeFilterMenu()" class="p-1.5 bg-gray-100 rounded-full hover:bg-gray-200 text-gray-500 transition-colors">
+                                <i class="ph-bold ph-x"></i>
+                            </button>
+                        </div>
+                        <div id="filter-options-container" class="space-y-2 max-h-[300px] overflow-y-auto custom-scroll">
+                            <!-- Options injected here -->
                         </div>
                     </div>
                 </div>
-                <div id="filter-menu" class="absolute -top-3 -left-3 -right-3 -bottom-3 z-50 flex items-start justify-center pt-24 rounded-[3rem] overflow-hidden pointer-events-none hidden"><div class="absolute inset-0 bg-black/40 backdrop-blur-sm pointer-events-auto" onclick="closeFilterMenu()"></div><div id="filter-menu-card" class="relative bg-white w-full max-w-[280px] rounded-3xl shadow-2xl p-5 pointer-events-auto transform scale-95 transition-all duration-200"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold text-gray-900">Categorías</h3><button onclick="closeFilterMenu()" class="p-1.5 bg-gray-100 rounded-full hover:bg-gray-200"><i class="ph-bold ph-x"></i></button></div><div id="filter-options-container" class="space-y-2 max-h-[300px] overflow-y-auto custom-scroll"></div></div></div>
+
             </div>
         </div>
-    </div>
 
     <!-- MODALS -->
     <!-- User Settings Modal -->
     <div id="user-settings-modal" class="fixed inset-0 z-[70] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeUserSettingsModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><div class="flex justify-between mb-4"><h3 class="text-lg font-bold" id="settings-title">Configuración</h3><button onclick="closeUserSettingsModal()"><i class="ph-bold ph-x"></i></button></div><div id="settings-content" class="space-y-4"></div></div></div></div>
     
-    <!-- Domain Modal, Rename, Delete are injected here or reused below -->
-    <div id="delete-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeDeleteModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 text-center"><div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4"><i class="ph-bold ph-trash text-2xl"></i></div><h3 class="text-lg font-bold mb-2">¿Eliminar elemento?</h3><div class="grid grid-cols-2 gap-3 pt-2"><button onclick="closeDeleteModal()" class="px-4 py-2.5 rounded-xl text-sm bg-gray-100">Cancelar</button><button onclick="confirmDeleteAction()" class="px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500">Eliminar</button></div></div></div></div>
-
-    <div id="rename-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeRenameModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><h3 class="text-lg font-bold mb-4">Renombrar Página</h3><input type="text" id="rename-input" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm mb-6" placeholder="Nuevo nombre"><div class="flex justify-end gap-3"><button onclick="closeRenameModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">Cancelar</button><button onclick="confirmRename()" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
-
+    <!-- Domain Modal -->
     <div id="domain-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeDomainModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Configurar Dominio</h3><button onclick="closeDomainModal()"><i class="ph-bold ph-x text-lg"></i></button></div><p class="text-sm text-gray-500 mb-4">Personaliza la dirección web de tu página.</p><div class="flex items-center bg-gray-50 rounded-xl px-4 border border-gray-200 mb-6"><span class="text-gray-500 text-sm font-medium whitespace-nowrap">www.biolink.app/</span><input type="text" id="domain-input" class="bg-transparent border-none text-sm w-full py-3" placeholder="mi-pagina"></div><div class="flex justify-end gap-3"><button onclick="closeDomainModal()" class="px-5 py-2.5 rounded-xl text-sm bg-gray-100">Cancelar</button><button onclick="saveDomain()" class="px-5 py-2.5 rounded-xl text-sm text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
 
-    <div id="edit-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeEditModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Editar Enlace</h3><button onclick="closeEditModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 overflow-y-auto custom-scroll space-y-6"><div><label class="block text-xs font-bold text-gray-400 uppercase mb-3">Icono</label><div id="modal-icon-grid" class="grid grid-cols-6 gap-2"></div></div><div class="space-y-4"><input type="text" id="modal-input-title" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Título"><input type="text" id="modal-input-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="URL" oninput="autoDetectIconInModal(this.value)"></div></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeEditModal()" class="px-5 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveEditLink()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
+    <!-- Rename Modal -->
+    <div id="rename-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeRenameModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><h3 class="text-lg font-bold mb-4">Renombrar Página</h3><input type="text" id="rename-input" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm mb-6" placeholder="Nuevo nombre"><div class="flex justify-end gap-3"><button onclick="closeRenameModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">Cancelar</button><button onclick="confirmRename()" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#007AFF] hover:bg-[#0062cc]">Guardar</button></div></div></div></div>
+
+    <!-- Delete Modal -->
+    <div id="delete-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeDeleteModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl transform transition-all scale-100 pointer-events-auto flex flex-col"><div class="p-6 text-center space-y-4"><div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-2"><i class="ph-bold ph-trash text-2xl"></i></div><h3 class="text-lg font-bold text-gray-900">¿Eliminar elemento?</h3><p class="text-sm text-gray-500">Esta acción no se puede deshacer.</p></div><div class="grid grid-cols-2 gap-3 p-6 pt-0"><button onclick="closeDeleteModal()" class="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200">Cancelar</button><button onclick="confirmDeleteAction()" class="px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600">Eliminar</button></div></div></div></div>
+
+    <!-- Edit Link Modal -->
+    <div id="edit-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeEditModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Editar Enlace</h3><button onclick="closeEditModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 overflow-y-auto custom-scroll space-y-6"><div><label class="block text-xs font-bold text-gray-400 uppercase mb-3">Icono</label><div id="modal-icon-grid" class="grid grid-cols-6 gap-2"></div></div><div class="space-y-4"><input type="text" id="modal-input-title" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Título"><input type="text" id="modal-input-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="URL" oninput="autoDetectIconInModal(this.value)"></div></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeEditModal()" class="px-5 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveEditLink()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
     
+    <!-- Edit Social Modal -->
     <div id="edit-social-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeEditSocialModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Icono Social</h3><button onclick="closeEditSocialModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 overflow-y-auto custom-scroll space-y-6"><div><label class="block text-xs font-bold text-gray-400 uppercase mb-3">Icono</label><div id="social-modal-icon-grid" class="grid grid-cols-6 gap-2"></div></div><div class="space-y-4"><input type="text" id="social-modal-input-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="URL" oninput="autoDetectIconInSocialModal(this.value)"></div></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeEditSocialModal()" class="px-5 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveEditSocial()" class="px-6 py-2.5 rounded-xl text-sm text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
 
+    <!-- Edit Product Modal -->
     <div id="edit-product-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeProductModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Editar Producto</h3><button onclick="closeProductModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 overflow-y-auto custom-scroll space-y-4"><div class="flex justify-center"><img id="modal-product-preview" src="" class="w-24 h-24 rounded-xl object-cover border shadow-sm"></div><input type="text" id="modal-product-img" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Imagen URL" oninput="document.getElementById('modal-product-preview').src = this.value"><input type="file" id="modal-product-file" class="hidden" onchange="handleProductFileSelect(this)"><label for="modal-product-file" class="block text-center text-sm text-[#007AFF] cursor-pointer font-medium hover:underline">Subir imagen</label><input type="text" id="modal-product-title" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Nombre"><div class="grid grid-cols-2 gap-4"><input type="text" id="modal-product-price" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Precio"><select id="modal-product-available" class="apple-input w-full px-4 py-3 rounded-xl text-sm"><option value="true">Disponible</option><option value="false">No disponible</option></select></div><div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-200"><span class="text-sm font-medium text-gray-700">Mostrar Precio</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="modal-product-showPrice" class="sr-only peer"><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#007AFF]"></div></label></div><select id="modal-product-category" class="apple-input w-full px-4 py-3 rounded-xl text-sm"></select><input type="text" id="modal-product-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Enlace de Compra"></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeProductModal()" class="px-5 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveProduct()" class="px-6 py-2.5 rounded-xl text-sm text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
 
+    <!-- Category Modal -->
     <div id="category-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeCategoryManager()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[80vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Categorías</h3><button onclick="closeCategoryManager()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 flex-1 overflow-y-auto custom-scroll"><div class="flex gap-2 mb-6"><input type="text" id="new-category-name" class="apple-input flex-1 px-4 py-2.5 rounded-xl text-sm" placeholder="Nueva Categoría"><button onclick="addCategory()" class="bg-[#007AFF] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#0062cc]">Añadir</button></div><div id="category-list-container" class="space-y-3"></div></div><div class="px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end"><button onclick="closeCategoryManager()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white bg-[#007AFF] w-full hover:bg-[#0062cc]">Listo</button></div></div></div></div>
 
+    <!-- Profile Modal -->
     <div id="profile-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeProfileModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto flex flex-col"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Foto de Perfil</h3><button onclick="closeProfileModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 space-y-6"><div class="flex justify-center"><img id="modal-profile-preview" src="" class="w-32 h-32 rounded-full object-cover border-4 shadow-md"></div><input type="text" id="modal-profile-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Enlace URL" oninput="updateProfilePreviewFromUrl(this.value)"><input type="file" id="modal-profile-file" class="hidden" onchange="handleProfileFileSelect(this)"><label for="modal-profile-file" class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border border-dashed border-gray-300 hover:border-[#007AFF] text-gray-600 cursor-pointer"><i class="ph-bold ph-upload-simple text-xl"></i><span class="text-sm font-medium">Subir archivo</span></label></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeProfileModal()" class="px-5 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveProfileImage()" class="px-6 py-2.5 rounded-xl text-sm text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
 
     <script type="module">
@@ -240,7 +473,6 @@
                         document.getElementById('header-user-avatar').src = d.avatar || "https://via.placeholder.com/100";
                         document.getElementById('menu-username').textContent = d.username || "Usuario";
                     } else {
-                        // Create default if not exists
                         setDoc(pRef, { username: "Usuario", email: user.email, avatar: "https://via.placeholder.com/100" });
                     }
                     document.getElementById('menu-email').textContent = user.email;
@@ -284,7 +516,7 @@
             const e=document.getElementById('reg-email').value, p=document.getElementById('reg-password').value, u=document.getElementById('reg-username').value;
             try { document.getElementById('loading-overlay').classList.add('active'); const c=await createUserWithEmailAndPassword(auth, e, p); 
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'usernames', u), {uid:c.user.uid});
-            await setDoc(doc(db, 'artifacts', appId, 'users', c.user.uid, 'profile', 'info'), {username:u, email:e, avatar:"https://ui-avatars.com/api/?name="+u+"&background=random"});
+            await setDoc(doc(db, 'artifacts', appId, 'users', c.user.uid, 'profile', 'info'), {username:u, email:e, avatar:`https://ui-avatars.com/api/?name=${u}&background=random`});
             } catch(err){ alert(err.message); document.getElementById('loading-overlay').classList.remove('active'); }
         };
 
@@ -343,7 +575,6 @@
             if(btn) { btn.className="ph-bold ph-check text-green-500"; setTimeout(()=>btn.className="ph-bold ph-floppy-disk text-xl", 1000); }
         };
 
-        // ... (REST OF RENDERERS AND HELPERS - SAME LOGIC ATTACHED TO WINDOW) ...
         window.renderDashboard = () => {
             const c = document.getElementById('dashboard-cards-container'); const ac = document.getElementById('archived-cards-container'); c.innerHTML=''; ac.innerHTML=''; let hasArc = false;
             window.pages.forEach(p => {
