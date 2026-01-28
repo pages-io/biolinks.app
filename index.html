@@ -31,14 +31,17 @@
         .drag-handle { cursor: grab; } .drag-handle:active { cursor: grabbing; }
         .product-unavailable { filter: grayscale(100%); opacity: 0.6; }
         .dropdown-menu { transform-origin: top right; transition: transform 0.1s ease-out, opacity 0.1s ease-out; }
+        .icon-option { transition: all 0.2s; }
+        .icon-option:hover { background-color: #F2F2F7; }
+        .icon-option.selected { background-color: #EBF3FF; border: 2px solid #007AFF; color: #007AFF; }
         
-        /* Animaciones */
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Loading Overlay */
         #loading-overlay { display: none; }
         #loading-overlay.active { display: flex; }
+        
+        #filter-menu { transition: visibility 0s linear 0.2s, opacity 0.2s linear; opacity: 0; visibility: hidden; }
+        #filter-menu.open { transition-delay: 0s; opacity: 1; visibility: visible; }
+        #filter-menu-card { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); transform: translateY(-20px) scale(0.95); }
+        #filter-menu.open #filter-menu-card { transform: scale(1) translateY(0); }
     </style>
 </head>
 <body class="h-screen overflow-hidden bg-[#F5F5F7]">
@@ -46,7 +49,7 @@
     <!-- PANTALLA DE CARGA -->
     <div id="loading-overlay" class="fixed inset-0 z-[100] bg-white flex items-center justify-center flex-col gap-4">
         <div class="w-10 h-10 border-4 border-blue-200 border-t-[#007AFF] rounded-full animate-spin"></div>
-        <p class="text-sm font-medium text-gray-500 animate-pulse">Cargando BioLink Studio...</p>
+        <p class="text-sm font-medium text-gray-500 animate-pulse">Cargando...</p>
     </div>
 
     <!-- PANTALLA DE AUTENTICACIÓN -->
@@ -58,52 +61,31 @@
 
         <div class="bg-white/80 backdrop-blur-xl w-full max-w-md p-8 rounded-3xl shadow-2xl border border-white z-10 fade-in">
             <div class="text-center mb-8">
-                <div class="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg">
-                    <i class="ph-bold ph-link"></i>
-                </div>
-                <h1 class="text-2xl font-bold text-gray-900">Bienvenido a BioLink</h1>
+                <div class="w-12 h-12 bg-black text-white rounded-xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-lg"><i class="ph-bold ph-link"></i></div>
+                <h1 class="text-2xl font-bold text-gray-900">BioLink Studio</h1>
                 <p class="text-sm text-gray-500 mt-2">Crea tu página personal en minutos.</p>
             </div>
-
-            <!-- Tabs Login/Register -->
             <div class="flex p-1 bg-gray-100 rounded-xl mb-6">
                 <button onclick="toggleAuthMode('login')" id="btn-tab-login" class="flex-1 py-2 text-sm font-medium rounded-lg bg-white shadow-sm text-gray-900 transition-all">Iniciar Sesión</button>
                 <button onclick="toggleAuthMode('register')" id="btn-tab-register" class="flex-1 py-2 text-sm font-medium rounded-lg text-gray-500 hover:text-gray-900 transition-all">Registrarse</button>
             </div>
-
-            <!-- Login Form -->
             <div id="login-form" class="space-y-4">
                 <input type="email" id="login-email" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Correo electrónico">
                 <input type="password" id="login-password" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Contraseña">
-                <button onclick="handleLogin()" class="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition-transform active:scale-95">
-                    Entrar
-                </button>
+                <button onclick="handleLogin()" class="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-3 rounded-xl text-sm font-bold shadow-lg transition-transform active:scale-95">Entrar</button>
             </div>
-
-            <!-- Register Form -->
             <div id="register-form" class="space-y-4 hidden">
                 <div class="relative">
                     <input type="text" id="reg-username" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Nombre de usuario" oninput="checkUsername(this.value)">
                     <div id="username-status" class="absolute right-3 top-3.5 text-lg hidden"></div>
                 </div>
                 <p id="username-msg" class="text-xs text-red-500 hidden pl-1"></p>
-                
                 <input type="email" id="reg-email" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Correo electrónico">
                 <input type="password" id="reg-password" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Contraseña">
-                <button onclick="handleRegister()" id="btn-register-submit" class="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-blue-500/30 transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
-                    Crear Cuenta
-                </button>
+                <button onclick="handleRegister()" id="btn-register-submit" class="w-full bg-[#007AFF] hover:bg-[#0062cc] text-white py-3 rounded-xl text-sm font-bold shadow-lg transition-transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">Crear Cuenta</button>
             </div>
-
-            <div class="my-6 flex items-center gap-3">
-                <div class="h-px bg-gray-200 flex-1"></div>
-                <span class="text-xs text-gray-400 font-medium">O CONTINUAR CON</span>
-                <div class="h-px bg-gray-200 flex-1"></div>
-            </div>
-
-            <button onclick="handleGoogleLogin()" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
-                <i class="ph-bold ph-google-logo text-lg text-red-500"></i> Google
-            </button>
+            <div class="my-6 flex items-center gap-3"><div class="h-px bg-gray-200 flex-1"></div><span class="text-xs text-gray-400 font-medium">O CONTINUAR CON</span><div class="h-px bg-gray-200 flex-1"></div></div>
+            <button onclick="handleGoogleLogin()" class="w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 py-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors"><i class="ph-bold ph-google-logo text-lg text-red-500"></i> Google</button>
         </div>
     </div>
 
@@ -111,30 +93,20 @@
     <div id="app-screen" class="h-full flex flex-col lg:flex-row hidden">
         <!-- LEFT PANEL -->
         <div id="left-panel" class="w-full h-full flex flex-col bg-white border-r border-gray-200 z-10 relative transition-all duration-300">
-            <!-- Header -->
             <header class="h-16 flex items-center justify-between px-8 border-b border-gray-100 bg-white/80 backdrop-blur-md sticky top-0 z-20">
                 <div class="flex items-center gap-2">
                     <div class="w-8 h-8 bg-black text-white rounded-lg flex items-center justify-center"><i class="ph-bold ph-link text-xl"></i></div>
                     <h1 class="font-semibold text-lg tracking-tight">BioLink Studio</h1>
                 </div>
-                
                 <div class="flex items-center gap-3">
-                    <!-- Editor Actions -->
                     <div id="editor-actions" class="flex gap-2 hidden">
                         <button onclick="saveCurrentPage()" class="p-2 text-gray-500 hover:text-[#007AFF] hover:bg-blue-50 rounded-lg transition-colors" title="Guardar"><i class="ph-bold ph-floppy-disk text-xl"></i></button>
                         <button onclick="publishPage()" class="bg-[#007AFF] hover:bg-[#0062cc] text-white px-4 py-1.5 rounded-full text-sm font-medium transition-colors shadow-md">Publicar</button>
                     </div>
-
-                    <!-- User Menu -->
                     <div class="relative">
-                        <button onclick="toggleUserMenu()" class="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 hover:border-blue-500 transition-colors">
-                            <img id="header-user-avatar" src="https://via.placeholder.com/100" class="w-full h-full object-cover">
-                        </button>
+                        <button onclick="toggleUserMenu()" class="w-9 h-9 rounded-full overflow-hidden border-2 border-gray-200 hover:border-blue-500 transition-colors"><img id="header-user-avatar" src="https://via.placeholder.com/100" class="w-full h-full object-cover"></button>
                         <div id="user-menu" class="dropdown-menu hidden absolute right-0 top-12 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-                            <div class="px-4 py-3 border-b border-gray-50">
-                                <p id="menu-username" class="text-sm font-bold text-gray-900 truncate">Usuario</p>
-                                <p id="menu-email" class="text-xs text-gray-500 truncate">user@email.com</p>
-                            </div>
+                            <div class="px-4 py-3 border-b border-gray-50"><p id="menu-username" class="text-sm font-bold text-gray-900 truncate">Usuario</p><p id="menu-email" class="text-xs text-gray-500 truncate">user@email.com</p></div>
                             <button onclick="openUserSettingsModal('profile')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"><i class="ph-bold ph-user"></i> Perfil</button>
                             <button onclick="openUserSettingsModal('settings')" class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 flex items-center gap-2 text-gray-700"><i class="ph-bold ph-gear"></i> Configuración</button>
                             <div class="h-px bg-gray-50 my-1"></div>
@@ -143,13 +115,9 @@
                     </div>
                 </div>
             </header>
-
-            <!-- Tabs -->
             <div class="px-8 pt-6 pb-2">
                 <div class="flex bg-[#F5F5F7] p-1 rounded-xl w-fit overflow-x-auto">
-                    <button id="tab-dashboard" onclick="switchToDashboard()" class="px-6 py-1.5 rounded-lg text-sm font-medium bg-white shadow-sm text-black transition-all flex items-center gap-2 whitespace-nowrap">
-                        <i class="ph-bold ph-squares-four"></i> Dashboard
-                    </button>
+                    <button id="tab-dashboard" onclick="switchToDashboard()" class="px-6 py-1.5 rounded-lg text-sm font-medium bg-white shadow-sm text-black transition-all flex items-center gap-2 whitespace-nowrap"><i class="ph-bold ph-squares-four"></i> Dashboard</button>
                     <div id="editor-tabs" class="flex hidden">
                         <div class="w-px bg-gray-300 mx-1 h-6 self-center"></div>
                         <button id="tab-content" onclick="switchTab('content')" class="px-6 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-black transition-all">Contenido</button>
@@ -159,34 +127,32 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Content Area -->
             <div class="flex-1 overflow-y-auto custom-scroll p-8 pb-32" id="editor-area">
-                <!-- DASHBOARD -->
                 <div id="section-dashboard" class="max-w-5xl mx-auto w-full">
-                    <div class="flex items-center justify-between mb-8">
-                        <div><h2 class="text-2xl font-bold text-gray-900">Mis Páginas</h2></div>
-                        <button onclick="createNewPage()" class="bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg flex items-center gap-2"><i class="ph-bold ph-plus"></i> Crear Nueva</button>
-                    </div>
+                    <div class="flex items-center justify-between mb-8"><div><h2 class="text-2xl font-bold text-gray-900">Mis Páginas</h2></div><button onclick="createNewPage()" class="bg-black hover:bg-gray-800 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-lg flex items-center gap-2"><i class="ph-bold ph-plus"></i> Crear Nueva</button></div>
                     <div id="dashboard-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12"></div>
-                    <div id="archived-section" class="hidden">
-                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-t border-gray-200 pt-6">Archivados</h3>
-                        <div id="archived-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-75"></div>
-                    </div>
+                    <div id="archived-section" class="hidden"><h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-t border-gray-200 pt-6">Archivados</h3><div id="archived-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-75"></div></div>
                 </div>
-
-                <!-- EDITOR SECTIONS -->
                 <div id="section-content" class="space-y-8 max-w-2xl hidden">
                     <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Perfil de la Página</h2><div class="bg-white p-6 rounded-2xl border flex gap-4"><div class="relative group cursor-pointer" onclick="openProfileModal()"><img id="input-avatar-preview" src="" class="w-20 h-20 rounded-full object-cover border-4"><div class="absolute inset-0 bg-black/30 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><i class="ph-bold ph-camera text-white text-2xl"></i></div></div><div class="flex-1 space-y-3"><input type="text" id="input-name" placeholder="Nombre visible" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm" oninput="updateState()"><input type="text" id="input-bio" placeholder="Biografía corta" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm" oninput="updateState()"></div></div></section>
-                    <section><div class="flex justify-between mb-4"><h2 class="text-xs font-bold text-gray-400 uppercase">Redes <span id="social-count"></span></h2><button onclick="addSocial()" class="text-blue-500 text-sm font-medium flex gap-1"><i class="ph-bold ph-plus"></i> Añadir</button></div><div id="socials-container" class="space-y-3"></div></section>
+                    <section><div class="flex justify-between mb-4"><h2 class="text-xs font-bold text-gray-400 uppercase">Redes <span id="social-count"></span></h2><button onclick="addSocial()" id="btn-add-social" class="text-blue-500 text-sm font-medium flex gap-1"><i class="ph-bold ph-plus"></i> Añadir</button></div><div id="socials-container" class="space-y-3"></div></section>
                     <section><div class="flex justify-between mb-4"><h2 class="text-xs font-bold text-gray-400 uppercase">Enlaces</h2><button onclick="addLink()" class="text-blue-500 text-sm font-medium flex gap-1"><i class="ph-bold ph-plus"></i> Añadir</button></div><div id="links-container" class="space-y-3"></div></section>
                 </div>
                 <div id="section-design" class="space-y-8 max-w-2xl hidden">
-                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Temas</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="themes-container"></div></section>
-                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Botones</h2><div id="button-styles-container" class="bg-white p-6 rounded-2xl border grid grid-cols-3 gap-4"></div></section>
+                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Temas</h2><div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="themes-container">
+                        <button onclick="setTheme('snow')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-white"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Snow</span></button>
+                        <button onclick="setTheme('midnight')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gray-900"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Midnight</span></button>
+                        <button onclick="setTheme('blue')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-600"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white">Ocean</span></button>
+                        <button onclick="setTheme('sand')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-[#f3e9dc]"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-gray-500">Sand</span></button>
+                        <button onclick="setTheme('forest')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gradient-to-br from-emerald-800 to-teal-900"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white/80">Forest</span></button>
+                        <button onclick="setTheme('lavender')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-[#F3E8FF]"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-[#4A1D96]">Lavender</span></button>
+                        <button onclick="setTheme('sunset')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gradient-to-br from-orange-400 to-pink-500"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-white">Sunset</span></button>
+                        <button onclick="setTheme('monochrome')" class="group relative aspect-[9/16] rounded-2xl border-2 border-transparent hover:border-[#007AFF] transition-all overflow-hidden text-left shadow-sm"><div class="absolute inset-0 bg-gray-100 border-2 border-black m-2 rounded-xl"></div><span class="absolute bottom-3 left-0 right-0 text-center text-xs font-medium text-black">Noir</span></button>
+                    </div></section>
+                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Estilo de Botones</h2><div id="button-styles-container" class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm grid grid-cols-3 gap-4"></div></section>
                 </div>
                 <div id="section-organize" class="space-y-8 max-w-2xl hidden">
-                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Organizar</h2><p class="text-sm text-gray-500 mb-4">Arrastra para ordenar.</p><div id="sections-container" class="space-y-3"></div></section>
+                    <section><h2 class="text-xs font-bold text-gray-400 uppercase mb-4">Organizar Bloques</h2><p class="text-sm text-gray-500 mb-4">Arrastra para cambiar el orden.</p><div id="sections-container" class="space-y-3"></div></section>
                 </div>
                 <div id="section-shop" class="space-y-8 max-w-2xl hidden">
                     <section><div class="flex justify-between mb-4"><h2 class="text-xs font-bold text-gray-400 uppercase">Productos</h2><div class="flex gap-2"><button onclick="openCategoryManager()" class="text-gray-500 text-sm border px-3 py-1.5 rounded-lg flex gap-1"><i class="ph-bold ph-list"></i> Cat.</button><button onclick="addProduct()" class="text-white bg-blue-500 px-3 py-1.5 rounded-lg text-sm flex gap-1"><i class="ph-bold ph-plus"></i> Prod.</button></div></div><div id="products-editor-container" class="space-y-3"></div></section>
@@ -219,85 +185,73 @@
     </div>
 
     <!-- MODALS -->
-    <!-- User Settings Modal -->
     <div id="user-settings-modal" class="fixed inset-0 z-[70] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeUserSettingsModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><div class="flex justify-between mb-4"><h3 class="text-lg font-bold" id="settings-title">Configuración</h3><button onclick="closeUserSettingsModal()"><i class="ph-bold ph-x"></i></button></div><div id="settings-content" class="space-y-4"></div></div></div></div>
-
-    <!-- Domain Modal, Rename, Delete, Edit Link/Social/Product/Cat/Profile are injected here or reused -->
-    <div id="generic-modal-container"></div> <!-- Container for dynamic modals to keep DOM clean -->
-
-    <!-- Reusing existing modal structures hidden in DOM -->
+    
+    <!-- Domain, Rename, Delete are injected here or reused below -->
     <div id="delete-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeDeleteModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 text-center"><div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4"><i class="ph-bold ph-trash text-2xl"></i></div><h3 class="text-lg font-bold mb-2">¿Eliminar elemento?</h3><div class="grid grid-cols-2 gap-3 pt-2"><button onclick="closeDeleteModal()" class="px-4 py-2.5 rounded-xl text-sm bg-gray-100">Cancelar</button><button onclick="confirmDeleteAction()" class="px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500">Eliminar</button></div></div></div></div>
 
-    <!-- Domain Modal -->
+    <div id="rename-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeRenameModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><h3 class="text-lg font-bold mb-4">Renombrar Página</h3><input type="text" id="rename-input" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm mb-6" placeholder="Nuevo nombre"><div class="flex justify-end gap-3"><button onclick="closeRenameModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">Cancelar</button><button onclick="confirmRename()" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
+
     <div id="domain-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeDomainModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-lg font-bold">Configurar Dominio</h3><button onclick="closeDomainModal()"><i class="ph-bold ph-x text-lg"></i></button></div><p class="text-sm text-gray-500 mb-4">Personaliza la dirección web de tu página.</p><div class="flex items-center bg-gray-50 rounded-xl px-4 border border-gray-200 mb-6"><span class="text-gray-500 text-sm font-medium whitespace-nowrap">www.biolink.app/</span><input type="text" id="domain-input" class="bg-transparent border-none text-sm w-full py-3" placeholder="mi-pagina"></div><div class="flex justify-end gap-3"><button onclick="closeDomainModal()" class="px-5 py-2.5 rounded-xl text-sm bg-gray-100">Cancelar</button><button onclick="saveDomain()" class="px-5 py-2.5 rounded-xl text-sm text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
 
-    <!-- SCRIPTS -->
+    <div id="edit-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeEditModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Editar Enlace</h3><button onclick="closeEditModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 overflow-y-auto custom-scroll space-y-6"><div><label class="block text-xs font-bold text-gray-400 uppercase mb-3">Icono</label><div id="modal-icon-grid" class="grid grid-cols-6 gap-2"></div></div><div class="space-y-4"><input type="text" id="modal-input-title" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Título"><input type="text" id="modal-input-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="URL" oninput="autoDetectIconInModal(this.value)"></div></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeEditModal()" class="px-5 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveEditLink()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
+    
+    <div id="edit-social-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeEditSocialModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Icono Social</h3><button onclick="closeEditSocialModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 overflow-y-auto custom-scroll space-y-6"><div><label class="block text-xs font-bold text-gray-400 uppercase mb-3">Icono</label><div id="social-modal-icon-grid" class="grid grid-cols-6 gap-2"></div></div><div class="space-y-4"><input type="text" id="social-modal-input-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="URL" oninput="autoDetectIconInSocialModal(this.value)"></div></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeEditSocialModal()" class="px-5 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveEditSocial()" class="px-6 py-2.5 rounded-xl text-sm text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
+
+    <div id="edit-product-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeProductModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-md rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[90vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Editar Producto</h3><button onclick="closeProductModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 overflow-y-auto custom-scroll space-y-4"><div class="flex justify-center"><img id="modal-product-preview" src="" class="w-24 h-24 rounded-xl object-cover border shadow-sm"></div><input type="text" id="modal-product-img" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Imagen URL" oninput="document.getElementById('modal-product-preview').src = this.value"><input type="file" id="modal-product-file" class="hidden" onchange="handleProductFileSelect(this)"><label for="modal-product-file" class="block text-center text-sm text-[#007AFF] cursor-pointer font-medium hover:underline">Subir imagen</label><input type="text" id="modal-product-title" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Nombre"><div class="grid grid-cols-2 gap-4"><input type="text" id="modal-product-price" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Precio"><select id="modal-product-available" class="apple-input w-full px-4 py-3 rounded-xl text-sm"><option value="true">Disponible</option><option value="false">No disponible</option></select></div><div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-200"><span class="text-sm font-medium text-gray-700">Mostrar Precio</span><label class="relative inline-flex items-center cursor-pointer"><input type="checkbox" id="modal-product-showPrice" class="sr-only peer"><div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#007AFF]"></div></label></div><select id="modal-product-category" class="apple-input w-full px-4 py-3 rounded-xl text-sm"></select><input type="text" id="modal-product-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Enlace de Compra"></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeProductModal()" class="px-5 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveProduct()" class="px-6 py-2.5 rounded-xl text-sm text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
+
+    <div id="category-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeCategoryManager()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto flex flex-col max-h-[80vh]"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Categorías</h3><button onclick="closeCategoryManager()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 flex-1 overflow-y-auto custom-scroll"><div class="flex gap-2 mb-6"><input type="text" id="new-category-name" class="apple-input flex-1 px-4 py-2.5 rounded-xl text-sm" placeholder="Nueva Categoría"><button onclick="addCategory()" class="bg-[#007AFF] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#0062cc]">Añadir</button></div><div id="category-list-container" class="space-y-3"></div></div><div class="px-6 py-4 bg-gray-50 rounded-b-2xl flex justify-end"><button onclick="closeCategoryManager()" class="px-6 py-2.5 rounded-xl text-sm font-medium text-white bg-[#007AFF] w-full hover:bg-[#0062cc]">Listo</button></div></div></div></div>
+
+    <div id="profile-modal" class="fixed inset-0 z-50 hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeProfileModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto flex flex-col"><div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between"><h3 class="text-lg font-semibold">Foto de Perfil</h3><button onclick="closeProfileModal()"><i class="ph-bold ph-x text-lg"></i></button></div><div class="p-6 space-y-6"><div class="flex justify-center"><img id="modal-profile-preview" src="" class="w-32 h-32 rounded-full object-cover border-4 shadow-md"></div><input type="text" id="modal-profile-url" class="apple-input w-full px-4 py-3 rounded-xl text-sm" placeholder="Enlace URL" oninput="updateProfilePreviewFromUrl(this.value)"><input type="file" id="modal-profile-file" class="hidden" onchange="handleProfileFileSelect(this)"><label for="modal-profile-file" class="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border border-dashed border-gray-300 hover:border-[#007AFF] text-gray-600 cursor-pointer"><i class="ph-bold ph-upload-simple text-xl"></i><span class="text-sm font-medium">Subir archivo</span></label></div><div class="px-6 py-4 bg-gray-50 border-t border-gray-100 rounded-b-2xl flex justify-end gap-3"><button onclick="closeProfileModal()" class="px-5 py-2.5 rounded-xl text-sm text-gray-600 hover:bg-gray-200">Cancelar</button><button onclick="saveProfileImage()" class="px-6 py-2.5 rounded-xl text-sm text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, updateEmail, deleteUser } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
         import { getFirestore, collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
 
         // CONFIG
-        const firebaseConfig = {
-            apiKey: "AIzaSyCWI8mNdJIn-UO6tcNWyu182Kotq0ozRDU",
-            authDomain: "biolinksapp-3fb04.firebaseapp.com",
-            projectId: "biolinksapp-3fb04",
-            storageBucket: "biolinksapp-3fb04.firebasestorage.app",
-            messagingSenderId: "814839023327",
-            appId: "1:814839023327:web:1aed3d7343bed87fa7cb6a",
-            measurementId: "G-98TYVY92R2"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyCWI8mNdJIn-UO6tcNWyu182Kotq0ozRDU", authDomain: "biolinksapp-3fb04.firebaseapp.com", projectId: "biolinksapp-3fb04", storageBucket: "biolinksapp-3fb04.firebasestorage.app", messagingSenderId: "814839023327", appId: "1:814839023327:web:1aed3d7343bed87fa7cb6a", measurementId: "G-98TYVY92R2" };
         const appId = 'biolinks-app';
-        
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const analytics = getAnalytics(app);
         const googleProvider = new GoogleAuthProvider();
 
-        // STATE
+        // GLOBAL STATE EXPORT
         window.currentUser = null;
         window.pages = [];
         window.appState = null;
         window.currentPageId = null;
         window.currentView = 'dashboard';
         
-        // CONSTANTS
+        // HELPERS EXPORT
         const ICON_MAP = [ { id: 'ph-link', label: 'Link' }, { id: 'ph-globe', label: 'Web' }, { id: 'ph-instagram-logo', label: 'IG', domains: ['instagram.com'] }, { id: 'ph-youtube-logo', label: 'YT', domains: ['youtube.com'] }, { id: 'ph-tiktok-logo', label: 'TikTok', domains: ['tiktok.com'] }, { id: 'ph-x-logo', label: 'X', domains: ['twitter.com'] }, { id: 'ph-facebook-logo', label: 'FB', domains: ['facebook.com'] }, { id: 'ph-linkedin-logo', label: 'In', domains: ['linkedin.com'] }, { id: 'ph-whatsapp-logo', label: 'WA', domains: ['whatsapp.com'] }, { id: 'ph-envelope', label: 'Mail', domains: ['mailto:'] }, { id: 'ph-storefront', label: 'Shop' } ];
+        window.currentEditingId = null; window.currentEditingSocialId = null; window.currentEditingProductId = null; window.editingCategoryId = null; window.pendingDeleteAction = { type: null, id: null }; window.selectedIconInModal = 'ph-link'; window.selectedSocialIconInModal = 'ph-link'; window.tempAvatarUrl = ''; window.categoryFilter = 'all'; window.previewView = 'home'; window.renameTargetId = null; window.domainTargetId = null;
 
-        // HELPER VARS
-        window.currentEditingId = null; 
-        window.currentEditingSocialId = null; 
-        window.currentEditingProductId = null; 
-        window.editingCategoryId = null;
-        window.pendingDeleteAction = { type: null, id: null };
-        window.selectedIconInModal = 'ph-link';
-        window.selectedSocialIconInModal = 'ph-link';
-        window.tempAvatarUrl = '';
-        window.categoryFilter = 'all';
-        window.previewView = 'home';
-        window.renameTargetId = null;
-        window.domainTargetId = null;
-
-        // --- AUTH ---
+        // AUTH & INIT
         onAuthStateChanged(auth, async (user) => {
             window.currentUser = user;
             if (user) {
-                // Load Profile
-                const profileRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'info');
-                const profileSnap = await getDoc(profileRef);
-                if(profileSnap.exists()) {
-                    const data = profileSnap.data();
-                    document.getElementById('header-user-avatar').src = data.avatar || "https://via.placeholder.com/100";
-                    document.getElementById('menu-username').textContent = data.username || "Usuario";
+                const pRef = doc(db, 'artifacts', appId, 'users', user.uid, 'profile', 'info');
+                onSnapshot(pRef, (snap) => {
+                    if(snap.exists()) {
+                        const d = snap.data();
+                        document.getElementById('header-user-avatar').src = d.avatar || "https://via.placeholder.com/100";
+                        document.getElementById('menu-username').textContent = d.username || "Usuario";
+                    }
                     document.getElementById('menu-email').textContent = user.email;
-                }
+                });
                 
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('app-screen').classList.remove('hidden');
                 document.getElementById('app-screen').classList.add('flex');
-                loadUserPages();
+                
+                const pagesRef = collection(db, 'artifacts', appId, 'users', user.uid, 'pages');
+                onSnapshot(pagesRef, (snapshot) => {
+                    window.pages = [];
+                    snapshot.forEach(doc => window.pages.push({ id: doc.id, ...doc.data() }));
+                    if (window.currentView === 'dashboard') window.renderDashboard();
+                });
             } else {
                 document.getElementById('auth-screen').classList.remove('hidden');
                 document.getElementById('app-screen').classList.add('hidden');
@@ -306,16 +260,7 @@
             document.getElementById('loading-overlay').classList.remove('active');
         });
 
-        function loadUserPages() {
-            const pagesRef = collection(db, 'artifacts', appId, 'users', window.currentUser.uid, 'pages');
-            onSnapshot(pagesRef, (snapshot) => {
-                window.pages = [];
-                snapshot.forEach(doc => window.pages.push({ id: doc.id, ...doc.data() }));
-                if (window.currentView === 'dashboard') renderDashboard();
-            });
-        }
-
-        // --- EXPORTED FUNCTIONS TO WINDOW ---
+        // --- GLOBAL FUNCTIONS BINDING ---
         window.toggleAuthMode = (mode) => {
             const l=document.getElementById('login-form'), r=document.getElementById('register-form'), bl=document.getElementById('btn-tab-login'), br=document.getElementById('btn-tab-register');
             if(mode==='login'){ l.classList.remove('hidden'); r.classList.add('hidden'); bl.className="flex-1 py-2 text-sm font-medium rounded-lg bg-white shadow-sm text-gray-900"; br.className="flex-1 py-2 text-sm font-medium rounded-lg text-gray-500 hover:text-gray-900"; }
@@ -343,6 +288,29 @@
         window.handleGoogleLogin = async () => { try { document.getElementById('loading-overlay').classList.add('active'); await signInWithPopup(auth, googleProvider); } catch(e) { alert(e.message); document.getElementById('loading-overlay').classList.remove('active'); } };
         window.handleLogout = async () => { await signOut(auth); window.location.reload(); };
 
+        window.toggleUserMenu = () => document.getElementById('user-menu').classList.toggle('hidden');
+        window.openUserSettingsModal = (type) => {
+            const m = document.getElementById('user-settings-modal');
+            const t = document.getElementById('settings-title');
+            const c = document.getElementById('settings-content');
+            document.getElementById('user-menu').classList.add('hidden');
+            m.classList.remove('hidden');
+            
+            if(type === 'profile') {
+                t.textContent = 'Editar Perfil';
+                c.innerHTML = `<div class="space-y-3"><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label><input type="text" id="setting-avatar" class="apple-input w-full px-3 py-2 rounded-lg text-sm" value="${document.getElementById('header-user-avatar').src}"></div></div><button onclick="saveUserProfileSettings()" class="w-full bg-[#007AFF] text-white py-2 rounded-lg text-sm mt-4">Guardar</button>`;
+            } else {
+                t.textContent = 'Configuración';
+                c.innerHTML = `<div class="space-y-4"><button onclick="alert('Función próximamente')" class="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl text-sm font-medium flex justify-between items-center">Cambiar Correo <i class="ph-bold ph-envelope-simple"></i></button><button onclick="if(confirm('¿Borrar cuenta?')) alert('Contacta soporte')" class="w-full text-left px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-medium flex justify-between items-center">Eliminar Cuenta <i class="ph-bold ph-trash"></i></button></div>`;
+            }
+        };
+        window.closeUserSettingsModal = () => document.getElementById('user-settings-modal').classList.add('hidden');
+        window.saveUserProfileSettings = async () => {
+             const av = document.getElementById('setting-avatar').value;
+             await setDoc(doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'profile', 'info'), { avatar: av }, { merge: true });
+             window.closeUserSettingsModal();
+        };
+
         window.createNewPage = async () => {
             if(!window.currentUser) return;
             const newId = crypto.randomUUID();
@@ -360,12 +328,13 @@
         };
 
         window.saveCurrentPage = async () => {
-            if(!window.currentUser || !window.currentPageId || !window.appState) return;
-            const btn = document.querySelector('button[title="Guardar"] i'); if(btn) { btn.className="ph-bold ph-spinner animate-spin"; }
+            if(!window.currentUser || !window.currentPageId) return;
+            const btn = document.querySelector('button[title="Guardar"] i'); if(btn) btn.className="ph-bold ph-spinner animate-spin";
             await updateDoc(doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'pages', window.currentPageId), { data: window.appState });
             if(btn) { btn.className="ph-bold ph-check text-green-500"; setTimeout(()=>btn.className="ph-bold ph-floppy-disk text-xl", 1000); }
         };
 
+        // ... (REST OF RENDERERS AND HELPERS - SAME LOGIC ATTACHED TO WINDOW) ...
         window.renderDashboard = () => {
             const c = document.getElementById('dashboard-cards-container'); const ac = document.getElementById('archived-cards-container'); c.innerHTML=''; ac.innerHTML=''; let hasArc = false;
             window.pages.forEach(p => {
@@ -375,27 +344,77 @@
             document.getElementById('archived-section').classList.toggle('hidden', !hasArc);
         };
 
-        // UI & Modal helpers
-        window.toggleUserMenu = () => document.getElementById('user-menu').classList.toggle('hidden');
         window.toggleCardMenu = (id) => { const m=document.getElementById(`menu-${id}`); document.querySelectorAll('.dropdown-menu').forEach(d=>d!==m && d.classList.add('hidden')); m.classList.toggle('hidden'); };
-        
         window.switchTab = (tab) => {
             if(tab==='dashboard') return window.switchToDashboard();
             ['content','design','organize','shop'].forEach(t => { document.getElementById(`section-${t}`).classList.add('hidden'); document.getElementById(`tab-${t}`).className="px-6 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-black transition-all"; });
             document.getElementById(`section-${tab}`).classList.remove('hidden'); document.getElementById(`tab-${tab}`).className="px-6 py-1.5 rounded-lg text-sm font-medium bg-white shadow-sm text-black transition-all";
         };
+        window.switchToDashboard = () => {
+            window.currentView = 'dashboard';
+            document.getElementById('section-dashboard').classList.remove('hidden');
+            ['content', 'design', 'organize', 'shop'].forEach(s => document.getElementById(`section-${s}`).classList.add('hidden'));
+            document.getElementById('left-panel').classList.remove('lg:w-3/5'); document.getElementById('left-panel').classList.add('w-full');
+            document.getElementById('right-panel').classList.add('hidden'); document.getElementById('right-panel').classList.remove('lg:flex');
+            document.getElementById('editor-tabs').classList.add('hidden'); document.getElementById('editor-actions').classList.add('hidden');
+            document.getElementById('tab-dashboard').classList.add('bg-white', 'shadow-sm', 'text-black'); document.getElementById('tab-dashboard').classList.remove('text-gray-500');
+            window.renderDashboard();
+        };
 
+        // Modals & CRUD
         window.openRenamePage = (id) => { window.renameTargetId=id; document.getElementById('rename-input').value=window.pages.find(p=>p.id===id).name; document.getElementById('rename-modal').classList.remove('hidden'); window.toggleCardMenu(id); };
         window.closeRenameModal = () => document.getElementById('rename-modal').classList.add('hidden');
         window.confirmRename = async () => { const n=document.getElementById('rename-input').value; if(n && window.renameTargetId) { await updateDoc(doc(db,'artifacts',appId,'users',window.currentUser.uid,'pages',window.renameTargetId), {name:n}); window.closeRenameModal(); } };
-
         window.openDomainModal = (id) => { window.domainTargetId=id; document.getElementById('domain-input').value=window.pages.find(p=>p.id===id).slug||''; document.getElementById('domain-modal').classList.remove('hidden'); window.toggleCardMenu(id); };
         window.closeDomainModal = () => document.getElementById('domain-modal').classList.add('hidden');
         window.saveDomain = async () => { const s=document.getElementById('domain-input').value; if(window.domainTargetId) { await updateDoc(doc(db,'artifacts',appId,'users',window.currentUser.uid,'pages',window.domainTargetId), {slug:s}); window.closeDomainModal(); } };
-
         window.togglePageStatus = async (id) => { const p=window.pages.find(x=>x.id===id); await updateDoc(doc(db,'artifacts',appId,'users',window.currentUser.uid,'pages',id), {active:!p.active}); };
         window.archivePage = async (id) => { await updateDoc(doc(db,'artifacts',appId,'users',window.currentUser.uid,'pages',id), {archived:true}); };
         window.unarchivePage = async (id) => { await updateDoc(doc(db,'artifacts',appId,'users',window.currentUser.uid,'pages',id), {archived:false}); };
+        
+        // Editor CRUD
+        window.updateEditorFields = () => { document.getElementById('input-name').value=window.appState.profile.name; document.getElementById('input-bio').value=window.appState.profile.bio; document.getElementById('input-avatar-preview').src=window.appState.profile.avatar; };
+        window.updateState = () => { window.appState.profile.name=document.getElementById('input-name').value; window.appState.profile.bio=document.getElementById('input-bio').value; window.renderPreview(); };
+        window.openProfileModal = () => { if(!window.appState) return; window.tempAvatarUrl=window.appState.profile.avatar; document.getElementById('modal-profile-preview').src=window.tempAvatarUrl; document.getElementById('modal-profile-url').value=''; document.getElementById('profile-modal').classList.remove('hidden'); };
+        window.closeProfileModal = () => document.getElementById('profile-modal').classList.add('hidden');
+        window.updateProfilePreviewFromUrl = (url) => { if(url) document.getElementById('modal-profile-preview').src=url; };
+        window.handleProfileFileSelect = (i) => { if(i.files[0]) { const r=new FileReader(); r.onload=e=>document.getElementById('modal-profile-preview').src=e.target.result; r.readAsDataURL(i.files[0]); } };
+        window.saveProfileImage = () => { window.appState.profile.avatar=document.getElementById('modal-profile-preview').src; window.updateEditorFields(); window.renderPreview(); window.closeProfileModal(); };
+        
+        window.renderEditorLinks = () => { const c=document.getElementById('links-container'); c.innerHTML=''; window.appState.links.forEach(l=>{c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2"><i class="ph-bold ph-dots-six-vertical text-gray-400 drag-handle"></i><div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center"><i class="ph-bold ${l.icon}"></i></div><span class="flex-1 text-sm font-medium">${l.title}</span><button onclick="openEditModal(${l.id})" class="p-2 hover:bg-gray-100 rounded"><i class="ph-bold ph-pencil-simple text-lg"></i></button><button onclick="openDeleteModal('link', ${l.id})" class="p-2 hover:text-red-500 rounded"><i class="ph-bold ph-trash text-lg"></i></button></div>`;}); };
+        window.addLink = () => { window.appState.links.push({id:Date.now(), title:'Link', url:'', icon:'ph-link'}); window.renderEditorLinks(); window.renderPreview(); window.openEditModal(window.appState.links[window.appState.links.length-1].id); };
+        window.openEditModal = (id) => { const l=window.appState.links.find(x=>x.id===id); if(l) { window.currentEditingId=id; window.selectedIconInModal=l.icon; document.getElementById('modal-input-title').value=l.title; document.getElementById('modal-input-url').value=l.url; window.renderIconGrid(); document.getElementById('edit-modal').classList.remove('hidden'); } };
+        window.closeEditModal = () => document.getElementById('edit-modal').classList.add('hidden');
+        window.saveEditLink = () => { const l=window.appState.links.find(x=>x.id===window.currentEditingId); if(l) { l.title=document.getElementById('modal-input-title').value; l.url=document.getElementById('modal-input-url').value; l.icon=window.selectedIconInModal; } window.renderEditorLinks(); window.renderPreview(); window.closeEditModal(); };
+        window.renderIconGrid = () => { const g=document.getElementById('modal-icon-grid'); g.innerHTML=''; ICON_MAP.forEach(i => g.innerHTML+=`<button onclick="selectedIconInModal='${i.id}';renderIconGrid()" class="icon-option aspect-square rounded-xl flex items-center justify-center text-xl text-gray-600 ${window.selectedIconInModal===i.id?'selected':'bg-gray-50 border border-transparent'}"><i class="ph-bold ${i.id}"></i></button>`); };
+        window.autoDetectIconInModal = (url) => { const i=window.getIconForUrl(url); if(i!=='ph-link') { window.selectedIconInModal=i; window.renderIconGrid(); } };
+
+        window.renderEditorSocials = () => { const c=document.getElementById('socials-container'); c.innerHTML=''; document.getElementById('social-count').textContent=`(${window.appState.socials.length}/4)`; window.appState.socials.forEach(s=>{c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2"><i class="ph-bold ${s.icon} text-lg"></i><span class="flex-1 text-xs truncate text-gray-400">${s.url}</span><button onclick="openEditSocialModal(${s.id})" class="p-2 hover:bg-gray-100 rounded"><i class="ph-bold ph-pencil-simple text-lg"></i></button><button onclick="openDeleteModal('social', ${s.id})" class="p-2 hover:text-red-500 rounded"><i class="ph-bold ph-trash text-lg"></i></button></div>`;}); };
+        window.addSocial = () => { if(window.appState.socials.length<4) { const id=Date.now(); window.appState.socials.push({id, url:'', icon:'ph-link'}); window.renderEditorSocials(); window.renderPreview(); window.openEditSocialModal(id); } };
+        window.openEditSocialModal = (id) => { const s=window.appState.socials.find(x=>x.id===id); if(s) { window.currentEditingSocialId=id; window.selectedSocialIconInModal=s.icon; document.getElementById('social-modal-input-url').value=s.url; window.renderSocialIconGrid(); document.getElementById('edit-social-modal').classList.remove('hidden'); } };
+        window.closeEditSocialModal = () => document.getElementById('edit-social-modal').classList.add('hidden');
+        window.saveEditSocial = () => { const s=window.appState.socials.find(x=>x.id===window.currentEditingSocialId); if(s) { s.url=document.getElementById('social-modal-input-url').value; s.icon=window.selectedSocialIconInModal; } window.renderEditorSocials(); window.renderPreview(); window.closeEditSocialModal(); };
+        window.renderSocialIconGrid = () => { const g=document.getElementById('social-modal-icon-grid'); g.innerHTML=''; ICON_MAP.forEach(i => g.innerHTML+=`<button onclick="selectedSocialIconInModal='${i.id}';renderSocialIconGrid()" class="icon-option aspect-square rounded-xl flex items-center justify-center text-xl text-gray-600 ${window.selectedSocialIconInModal===i.id?'selected':'bg-gray-50 border border-transparent'}"><i class="ph-bold ${i.id}"></i></button>`); };
+        window.autoDetectIconInSocialModal = (url) => { const i=window.getIconForUrl(url); if(i!=='ph-link') { window.selectedSocialIconInModal=i; window.renderSocialIconGrid(); } };
+
+        window.renderEditorProducts = () => { const c=document.getElementById('products-editor-container'); c.innerHTML=''; window.appState.products.forEach(p=>{const op=p.visible?'':'opacity-50'; c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2 ${op}"><i class="ph-bold ph-dots-six-vertical text-gray-400 drag-handle"></i><img src="${p.img}" class="w-8 h-8 rounded object-cover"><span class="flex-1 text-sm font-medium">${p.title}</span><button onclick="toggleProductVisibility(${p.id})" class="p-2"><i class="ph-bold ${p.visible?'ph-eye':'ph-eye-slash'}"></i></button><button onclick="openProductModal(${p.id})" class="p-2"><i class="ph-bold ph-pencil-simple"></i></button><button onclick="openDeleteModal('product', ${p.id})" class="p-2 hover:text-red-500"><i class="ph-bold ph-trash"></i></button></div>`;}); };
+        window.addProduct = () => { const id=Date.now(); window.appState.products.push({id, title:'Producto', price:'$0', url:'', img:'https://via.placeholder.com/150', categoryId:null, available:true, visible:true, showPrice:true}); window.renderEditorProducts(); window.renderPreview(); window.openProductModal(id); };
+        window.openProductModal = (id) => { 
+            const p=window.appState.products.find(x=>x.id===id); if(!p) return; window.currentEditingProductId=id; 
+            document.getElementById('modal-product-title').value=p.title; document.getElementById('modal-product-price').value=p.price; document.getElementById('modal-product-url').value=p.url; document.getElementById('modal-product-img').value=''; document.getElementById('modal-product-preview').src=p.img; document.getElementById('modal-product-available').value=p.available.toString(); document.getElementById('modal-product-showPrice').checked=p.showPrice!==false;
+            const sel=document.getElementById('modal-product-category'); sel.innerHTML='<option value="">Sin Categoría</option>'; window.appState.categories.forEach(c=>{const o=document.createElement('option'); o.value=c.id; o.text=c.name; if(p.categoryId===c.id)o.selected=true; sel.appendChild(o);});
+            document.getElementById('edit-product-modal').classList.remove('hidden'); 
+        };
+        window.closeProductModal = () => document.getElementById('edit-product-modal').classList.add('hidden');
+        window.saveProduct = () => { const p=window.appState.products.find(x=>x.id===window.currentEditingProductId); if(p) { p.title=document.getElementById('modal-product-title').value; p.price=document.getElementById('modal-product-price').value; p.url=document.getElementById('modal-product-url').value; if(document.getElementById('modal-product-img').value) p.img=document.getElementById('modal-product-img').value; else if(document.getElementById('modal-product-preview').src) p.img=document.getElementById('modal-product-preview').src; p.categoryId=parseInt(document.getElementById('modal-product-category').value)||null; p.available=document.getElementById('modal-product-available').value==='true'; p.showPrice=document.getElementById('modal-product-showPrice').checked; } window.renderEditorProducts(); window.renderPreview(); window.closeProductModal(); };
+        window.handleProductFileSelect = (i) => { if(i.files[0]) { const r=new FileReader(); r.onload=e=>document.getElementById('modal-product-preview').src=e.target.result; r.readAsDataURL(i.files[0]); } };
+        window.toggleProductVisibility = (id) => { const p=window.appState.products.find(x=>x.id===id); if(p) { p.visible=!p.visible; window.renderEditorProducts(); window.renderPreview(); } };
+
+        window.openCategoryManager = () => { window.renderCategoryList(); document.getElementById('category-modal').classList.remove('hidden'); };
+        window.closeCategoryManager = () => { document.getElementById('category-modal').classList.add('hidden'); window.editingCategoryId=null; };
+        window.renderCategoryList = () => { const c=document.getElementById('category-list-container'); c.innerHTML=''; window.appState.categories.forEach(cat => { c.innerHTML += window.editingCategoryId===cat.id ? `<div class="bg-white p-3 rounded-xl border flex gap-2"><input id="edit-cat-${cat.id}" value="${cat.name}" class="apple-input flex-1 px-2 py-1 text-sm"><button onclick="saveCategoryEdit(${cat.id})" class="text-blue-500"><i class="ph-bold ph-check"></i></button></div>` : `<div class="bg-white p-3 rounded-xl border flex justify-between items-center"><span class="text-sm font-medium">${cat.name}</span><div class="flex gap-2"><button onclick="editingCategoryId=${cat.id};renderCategoryList()" class="text-gray-400 hover:text-blue-500"><i class="ph-bold ph-pencil-simple"></i></button><button onclick="openDeleteModal('category', ${cat.id})" class="text-gray-400 hover:text-red-500"><i class="ph-bold ph-trash"></i></button></div></div>`; }); };
+        window.addCategory = () => { const n=document.getElementById('new-category-name').value.trim(); if(n) { window.appState.categories.push({id:Date.now(), name:n}); document.getElementById('new-category-name').value=''; window.renderCategoryList(); window.renderPreview(); } };
+        window.saveCategoryEdit = (id) => { const n=document.getElementById(`edit-cat-${id}`).value.trim(); if(n) { window.appState.categories.find(c=>c.id===id).name=n; window.editingCategoryId=null; window.renderCategoryList(); window.renderPreview(); } };
 
         window.openDeleteModal = (type, id) => { window.pendingDeleteAction={type,id}; document.getElementById('delete-modal').classList.remove('hidden'); };
         window.closeDeleteModal = () => document.getElementById('delete-modal').classList.add('hidden');
@@ -403,101 +422,97 @@
             const {type, id} = window.pendingDeleteAction;
             if(type==='page') await deleteDoc(doc(db,'artifacts',appId,'users',window.currentUser.uid,'pages',id));
             else {
-                // Local state updates for editor content
-                if(type==='link') window.appState.links = window.appState.links.filter(x=>x.id!==id);
-                if(type==='social') window.appState.socials = window.appState.socials.filter(x=>x.id!==id);
-                if(type==='product') window.appState.products = window.appState.products.filter(x=>x.id!==id);
-                if(type==='category') { window.appState.categories = window.appState.categories.filter(x=>x.id!==id); window.appState.products.forEach(p=>{if(p.categoryId===id)p.categoryId=null}); }
-                window.renderEditorLinks(); window.renderEditorSocials(); window.renderEditorProducts(); window.renderSectionsEditor(); window.renderPreview();
+                if(type==='link') window.appState.links=window.appState.links.filter(x=>x.id!==id);
+                if(type==='social') window.appState.socials=window.appState.socials.filter(x=>x.id!==id);
+                if(type==='product') window.appState.products=window.appState.products.filter(x=>x.id!==id);
+                if(type==='category') { window.appState.categories=window.appState.categories.filter(x=>x.id!==id); window.appState.products.forEach(p=>{if(p.categoryId===id)p.categoryId=null}); }
+                window.renderEditorLinks(); window.renderEditorSocials(); window.renderEditorProducts(); window.renderCategoryList(); window.renderPreview();
             }
             window.closeDeleteModal();
         };
 
-        // Editor Update Functions (DOM Binding)
-        window.updateEditorFields = () => { document.getElementById('input-name').value=window.appState.profile.name; document.getElementById('input-bio').value=window.appState.profile.bio; document.getElementById('input-avatar-preview').src=window.appState.profile.avatar; };
-        window.updateState = () => { window.appState.profile.name=document.getElementById('input-name').value; window.appState.profile.bio=document.getElementById('input-bio').value; window.renderPreview(); };
-        
-        window.renderEditorLinks = () => { const c=document.getElementById('links-container'); c.innerHTML=''; window.appState.links.forEach(l=>{c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2"><i class="ph-bold ph-dots-six-vertical text-gray-400 drag-handle"></i><div class="w-8 h-8 rounded bg-gray-100 flex items-center justify-center"><i class="ph-bold ${l.icon}"></i></div><span class="flex-1 text-sm font-medium">${l.title}</span><button onclick="openEditModal(${l.id})" class="p-2 hover:bg-gray-100 rounded"><i class="ph-bold ph-pencil-simple"></i></button><button onclick="openDeleteModal('link', ${l.id})" class="p-2 hover:text-red-500 rounded"><i class="ph-bold ph-trash"></i></button></div>`;}); };
-        window.renderEditorSocials = () => { const c=document.getElementById('socials-container'); c.innerHTML=''; document.getElementById('social-count').textContent=`(${window.appState.socials.length}/4)`; window.appState.socials.forEach(s=>{c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2"><i class="ph-bold ${s.icon} text-lg"></i><span class="flex-1 text-xs text-gray-500 truncate">${s.url}</span><button onclick="openEditSocialModal(${s.id})" class="p-2 hover:bg-gray-100 rounded"><i class="ph-bold ph-pencil-simple"></i></button><button onclick="openDeleteModal('social', ${s.id})" class="p-2 hover:text-red-500 rounded"><i class="ph-bold ph-trash"></i></button></div>`;}); };
-        window.renderEditorProducts = () => { const c=document.getElementById('products-editor-container'); c.innerHTML=''; window.appState.products.forEach(p=>{const op=p.visible?'':'opacity-50'; c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2 ${op}"><i class="ph-bold ph-dots-six-vertical text-gray-400 drag-handle"></i><img src="${p.img}" class="w-8 h-8 rounded object-cover"><span class="flex-1 text-sm font-medium">${p.title}</span><button onclick="toggleProductVisibility(${p.id})" class="p-2"><i class="ph-bold ${p.visible?'ph-eye':'ph-eye-slash'}"></i></button><button onclick="openProductModal(${p.id})" class="p-2"><i class="ph-bold ph-pencil-simple"></i></button><button onclick="openDeleteModal('product', ${p.id})" class="p-2 hover:text-red-500"><i class="ph-bold ph-trash"></i></button></div>`;}); };
-        window.renderSectionsEditor = () => { const c=document.getElementById('sections-container'); c.innerHTML=''; window.appState.sections.forEach(s=>{c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2"><i class="ph-bold ph-dots-six-vertical text-gray-400 drag-handle"></i><span class="flex-1 text-sm font-medium ${s.enabled?'':'text-gray-400'}">${s.label}</span><button onclick="toggleSectionVisibility('${s.id}')" class="p-2"><i class="ph-bold ${s.enabled?'ph-eye':'ph-eye-slash'}"></i></button></div>`;}); };
+        window.renderSectionsEditor = () => { const c=document.getElementById('sections-container'); c.innerHTML=''; window.appState.sections.forEach(s=>{const icon=s.enabled?'ph-eye':'ph-eye-slash text-gray-300'; c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2"><i class="ph-bold ph-dots-six-vertical text-gray-400 drag-handle"></i><span class="flex-1 text-sm font-medium ${s.enabled?'':'text-gray-400'}">${s.label}</span><button onclick="toggleSectionVisibility('${s.id}')" class="p-2"><i class="ph-bold ${icon} text-lg"></i></button></div>`;}); };
+        window.toggleSectionVisibility = (id) => { const s=window.appState.sections.find(x=>x.id===id); if(s) { s.enabled=!s.enabled; window.renderSectionsEditor(); window.renderPreview(); } };
 
-        window.addLink = () => { window.appState.links.push({id:Date.now(), title:'Link', url:'', icon:'ph-link'}); window.renderEditorLinks(); window.renderPreview(); window.openEditModal(window.appState.links[window.appState.links.length-1].id); };
-        window.addSocial = () => { if(window.appState.socials.length<4) { const id=Date.now(); window.appState.socials.push({id, url:'', icon:'ph-link'}); window.renderEditorSocials(); window.renderPreview(); window.openEditSocialModal(id); } };
-        window.addProduct = () => { const id=Date.now(); window.appState.products.push({id, title:'Producto', price:'$0', url:'', img:'https://via.placeholder.com/150', visible:true, available:true, showPrice:true, categoryId:null}); window.renderEditorProducts(); window.renderPreview(); window.openProductModal(id); };
+        window.setTheme = (t) => { window.appState.design.theme=t; window.renderPreview(); };
+        window.setButtonStyle = (s) => { let t='rounded-xl'; if(s==='sharp') t='rounded-none'; if(s==='pill') t='rounded-full'; window.appState.design.buttonStyle=t; window.updateButtonStyleButtons(s); window.renderPreview(); };
+        window.updateButtonStyleButtons = (s) => { document.getElementById('button-styles-container').innerHTML = `<button onclick="setButtonStyle('sharp')" class="h-12 border-2 ${s==='sharp'?'border-black bg-black text-white':'border-gray-200 hover:border-gray-900'} rounded-none text-sm font-medium">Cuadrado</button><button onclick="setButtonStyle('rounded')" class="h-12 border-2 ${s==='rounded'?'border-black bg-black text-white':'border-gray-200 hover:border-gray-900'} rounded-xl text-sm font-medium">Redondeado</button><button onclick="setButtonStyle('pill')" class="h-12 border-2 ${s==='pill'?'border-black bg-black text-white':'border-gray-200 hover:border-gray-900'} rounded-full text-sm font-medium">Píldora</button>`; };
 
-        // Modals Open/Close/Save Logic
-        window.openEditModal = (id) => { const l=window.appState.links.find(x=>x.id===id); if(l) { window.currentEditingId=id; document.getElementById('modal-input-title').value=l.title; document.getElementById('modal-input-url').value=l.url; document.getElementById('edit-modal').classList.remove('hidden'); } };
-        window.saveEditLink = () => { const l=window.appState.links.find(x=>x.id===window.currentEditingId); if(l) { l.title=document.getElementById('modal-input-title').value; l.url=document.getElementById('modal-input-url').value; } window.renderEditorLinks(); window.renderPreview(); document.getElementById('edit-modal').classList.add('hidden'); };
-        
-        // ... (Repeating similar compact logic for Socials, Products, Profile to save space but ensure functionality) ...
-        window.closeEditModal=()=>document.getElementById('edit-modal').classList.add('hidden');
-        window.openEditSocialModal=(id)=>{const s=window.appState.socials.find(x=>x.id===id);if(s){window.currentEditingSocialId=id;document.getElementById('social-modal-input-url').value=s.url;document.getElementById('edit-social-modal').classList.remove('hidden');}};
-        window.closeEditSocialModal=()=>document.getElementById('edit-social-modal').classList.add('hidden');
-        window.saveEditSocial=()=>{const s=window.appState.socials.find(x=>x.id===window.currentEditingSocialId);if(s){s.url=document.getElementById('social-modal-input-url').value;}window.renderEditorSocials();window.renderPreview();window.closeEditSocialModal();};
-        
-        window.openProductModal=(id)=>{const p=window.appState.products.find(x=>x.id===id);if(p){window.currentEditingProductId=id; document.getElementById('modal-product-title').value=p.title; document.getElementById('modal-product-price').value=p.price; document.getElementById('modal-product-url').value=p.url; document.getElementById('edit-product-modal').classList.remove('hidden');}};
-        window.closeProductModal=()=>document.getElementById('edit-product-modal').classList.add('hidden');
-        window.saveProduct=()=>{const p=window.appState.products.find(x=>x.id===window.currentEditingProductId);if(p){p.title=document.getElementById('modal-product-title').value;p.price=document.getElementById('modal-product-price').value;p.url=document.getElementById('modal-product-url').value;}window.renderEditorProducts();window.renderPreview();window.closeProductModal();};
-
-        window.toggleSectionVisibility=(id)=>{const s=window.appState.sections.find(x=>x.id===id);if(s){s.enabled=!s.enabled;window.renderSectionsEditor();window.renderPreview();}};
-        window.toggleProductVisibility=(id)=>{const p=window.appState.products.find(x=>x.id===id);if(p){p.visible=!p.visible;window.renderEditorProducts();window.renderPreview();}};
-        
-        window.setTheme=(t)=>{window.appState.design.theme=t;window.renderPreview();};
-        
         window.setPreviewView = (view) => {
             window.previewView = view;
-            const scroll = document.getElementById('preview-scroll-container');
-            if(scroll) scroll.scrollTop = 0;
+            const scroll = document.getElementById('preview-scroll-container'); if(scroll) scroll.scrollTop=0;
             document.getElementById('view-home').classList.toggle('hidden', view !== 'home');
             document.getElementById('view-catalog').classList.toggle('hidden', view === 'home');
             document.getElementById('view-catalog').classList.toggle('flex', view !== 'home');
             window.renderPreview();
         };
 
-        // Preview Render (Simplified for brevity, logic remains)
+        window.openFilterMenu = () => { 
+            const m = document.getElementById('filter-menu'); const c = document.getElementById('filter-options-container'); c.innerHTML = `<button onclick="selectFilter('all')" class="w-full text-left px-4 py-3 rounded-xl flex justify-between font-medium ${window.categoryFilter==='all'?'bg-blue-50 text-blue-500':'hover:bg-gray-50'}"><span>Todo</span></button>`; window.appState.categories.forEach(cat => c.innerHTML += `<button onclick="selectFilter(${cat.id})" class="w-full text-left px-4 py-3 rounded-xl flex justify-between font-medium ${window.categoryFilter===cat.id?'bg-blue-50 text-blue-500':'hover:bg-gray-50'}"><span>${cat.name}</span></button>`); m.classList.remove('hidden'); setTimeout(()=>m.classList.add('open'),10); 
+        };
+        window.closeFilterMenu = () => { const m = document.getElementById('filter-menu'); m.classList.remove('open'); setTimeout(()=>m.classList.add('hidden'),300); };
+        window.selectFilter = (id) => { window.categoryFilter = id; window.closeFilterMenu(); window.renderPreview(); };
+
+        window.getIconForUrl = (url) => { if(!url) return 'ph-link'; const l=url.toLowerCase(); const f=ICON_MAP.find(i=>i.domains&&i.domains.some(d=>l.includes(d))); return f?f.id:'ph-link'; };
+        window.copyCode = () => alert("HTML Copiado");
+
         window.renderPreview = () => {
              if(!window.appState) return;
-             const theme = {
-                 snow:{bg:'bg-white',text:'text-gray-900', btnBg: 'bg-gray-100', btnText: 'text-gray-900'},
-                 midnight:{bg:'bg-gray-900',text:'text-white', btnBg: 'bg-gray-800', btnText: 'text-white'},
-                 blue:{bg:'bg-blue-600',text:'text-white', btnBg: 'bg-white/10', btnText: 'text-white'},
-                 sand:{bg:'bg-orange-50',text:'text-gray-800', btnBg: 'bg-orange-100', btnText: 'text-gray-800'},
-                 forest:{bg:'bg-green-800',text:'text-white', btnBg: 'bg-green-700', btnText: 'text-white'},
-                 lavender:{bg:'bg-purple-100',text:'text-purple-900', btnBg: 'bg-white', btnText: 'text-purple-900'},
-                 sunset:{bg:'bg-orange-400',text:'text-white', btnBg: 'bg-white/20', btnText: 'text-white'},
-                 monochrome:{bg:'bg-gray-100',text:'text-black', btnBg: 'bg-white', btnText: 'text-black'}
-             }[window.appState.design.theme] || {bg:'bg-white',text:'text-gray-900', btnBg: 'bg-gray-100', btnText: 'text-gray-900'};
-             
+             const theme = { snow:{bg:'bg-white',text:'text-gray-900', btnBg: 'bg-gray-100', btnText: 'text-gray-900'}, midnight:{bg:'bg-gray-900',text:'text-white', btnBg: 'bg-gray-800', btnText: 'text-white'}, blue:{bg:'bg-blue-600',text:'text-white', btnBg: 'bg-white/10', btnText: 'text-white'}, sand:{bg:'bg-orange-50',text:'text-gray-800', btnBg: 'bg-orange-100', btnText: 'text-gray-800'}, forest:{bg:'bg-green-800',text:'text-white', btnBg: 'bg-green-700', btnText: 'text-white'}, lavender:{bg:'bg-purple-100',text:'text-purple-900', btnBg: 'bg-white', btnText: 'text-purple-900'}, sunset:{bg:'bg-orange-400',text:'text-white', btnBg: 'bg-white/20', btnText: 'text-white'}, monochrome:{bg:'bg-gray-100',text:'text-black', btnBg: 'bg-white', btnText: 'text-black'} }[window.appState.design.theme] || {bg:'bg-white',text:'text-gray-900', btnBg: 'bg-gray-100', btnText: 'text-gray-900'};
              const bg = document.getElementById('preview-bg');
              bg.className = `min-h-full w-full pt-16 pb-8 px-6 flex flex-col items-center transition-all duration-500 ${theme.bg}`;
              
-             // ... The detailed render logic for sections ...
-             // Re-implementing basic section render for immediate visual feedback
-             const container = document.getElementById('preview-sections-container');
              if(window.previewView === 'home') {
-                 container.innerHTML = '';
+                 const container = document.getElementById('preview-sections-container'); container.innerHTML = '';
                  window.appState.sections.forEach(sec => {
                      if(!sec.enabled) return;
-                     if(sec.id === 'profile') container.innerHTML += `<div class="text-center mb-6"><img src="${window.appState.profile.avatar}" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover"><h2 class="text-xl font-bold ${theme.text}">${window.appState.profile.name}</h2><p class="text-sm opacity-80 ${theme.text}">${window.appState.profile.bio}</p></div>`;
-                     if(sec.id === 'links') window.appState.links.forEach(l => container.innerHTML += `<a href="${l.url}" class="block w-full ${theme.btnBg} ${theme.btnText} p-3 rounded-xl mb-3 text-center text-sm font-medium ${window.appState.design.buttonStyle}">${l.title}</a>`);
-                     // Add other sections logic here
+                     if(sec.id === 'profile') container.innerHTML += `<div class="text-center mb-6 w-full"><img src="${window.appState.profile.avatar}" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover"><h2 class="text-xl font-bold ${theme.text}">${window.appState.profile.name}</h2><p class="text-sm opacity-80 ${theme.text}">${window.appState.profile.bio}</p></div>`;
+                     if(sec.id === 'links') window.appState.links.forEach(l => container.innerHTML += `<a href="${l.url}" class="block w-full ${theme.btnBg} ${theme.btnText} p-3 rounded-xl mb-3 text-center text-sm font-medium ${window.appState.design.buttonStyle} flex items-center justify-center gap-2"><i class="ph-bold ${l.icon}"></i>${l.title}</a>`);
+                     if(sec.id === 'socials') { let h='<div class="flex justify-center gap-4 mb-4">'; window.appState.socials.forEach(s=>h+=`<a href="${s.url}" class="text-2xl ${theme.text}"><i class="ph-bold ${s.icon}"></i></a>`); h+='</div>'; container.innerHTML+=h; }
+                     if(sec.id === 'products') { 
+                         const vis = window.appState.products.filter(p=>p.visible).slice(0,2);
+                         vis.forEach(p => container.innerHTML += window.renderProductCard(p, theme));
+                         if(window.appState.products.filter(p=>p.visible).length>2) container.innerHTML+=`<button onclick="setPreviewView('catalog')" class="w-full py-2 mt-2 border rounded-xl text-sm ${theme.text}">Ver Catálogo</button>`;
+                     }
                  });
+             } else {
+                 const c = document.getElementById('preview-products-catalog'); c.innerHTML='';
+                 const title = document.querySelector('#view-catalog h2'); if(title) title.className=`text-lg font-bold text-center ${theme.text}`;
+                 const back = document.querySelector('#view-catalog button i'); if(back) back.className=`ph-bold ph-arrow-left text-xl ${theme.text}`;
+                 
+                 let filtered = window.appState.products.filter(p => p.visible);
+                 if(window.categoryFilter !== 'all') filtered = filtered.filter(p => p.categoryId == window.categoryFilter);
+                 filtered.forEach(p => c.innerHTML += window.renderProductCard(p, theme));
              }
         };
 
-        // Publish
+        window.renderProductCard = (p, t) => {
+             const r = window.appState.design.buttonStyle === 'rounded-full' ? 'rounded-2xl' : window.appState.design.buttonStyle;
+             const price = p.showPrice ? `<span class="text-xs font-semibold px-2 py-1 rounded-md bg-gray-100 text-gray-600">${p.price}</span>` : '';
+             const badge = p.available ? '' : '<span class="absolute top-2 right-2 bg-gray-500 text-white text-[10px] px-2 py-0.5 rounded-full">Agotado</span>';
+             const op = p.available ? '' : 'grayscale opacity-60';
+             return `<a href="${p.url}" class="block w-full bg-white ${r} overflow-hidden shadow-sm mb-3 relative ${op}">${badge}<div class="h-40 bg-gray-100"><img src="${p.img}" class="w-full h-full object-cover"></div><div class="p-3 flex justify-between items-center"><span class="font-bold text-gray-900 truncate flex-1">${p.title}</span>${price}</div></a>`;
+        };
+
         window.publishPage = () => {
             window.saveCurrentPage();
-            const htmlContent = document.documentElement.outerHTML; // Simplified for demo
+            const htmlContent = document.documentElement.outerHTML; // Simplified
             const blob = new Blob([htmlContent], {type: 'text/html'});
             window.open(URL.createObjectURL(blob), '_blank');
         };
-        
-        window.copyCode = () => alert("Código copiado (Simulación)");
 
-        // Initial render trigger
-        if(window.currentView === 'dashboard') window.renderDashboard();
+        function initSortable() {
+            ['links-container', 'products-editor-container', 'sections-container'].forEach(id => {
+                const el = document.getElementById(id);
+                if(el) Sortable.create(el, { animation: 150, handle: '.drag-handle', onEnd: (evt) => {
+                    if(id.includes('links')) window.appState.links.splice(evt.newIndex, 0, window.appState.links.splice(evt.oldIndex, 1)[0]);
+                    if(id.includes('products')) window.appState.products.splice(evt.newIndex, 0, window.appState.products.splice(evt.oldIndex, 1)[0]);
+                    if(id.includes('sections')) window.appState.sections.splice(evt.newIndex, 0, window.appState.sections.splice(evt.oldIndex, 1)[0]);
+                    window.renderPreview();
+                }});
+            });
+        }
+
     </script>
 </body>
 </html>
