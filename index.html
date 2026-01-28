@@ -185,6 +185,7 @@
     </div>
 
     <!-- MODALS -->
+    <!-- User Settings Modal (UPDATED) -->
     <div id="user-settings-modal" class="fixed inset-0 z-[70] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeUserSettingsModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><div class="flex justify-between mb-4"><h3 class="text-lg font-bold" id="settings-title">Configuración</h3><button onclick="closeUserSettingsModal()"><i class="ph-bold ph-x"></i></button></div><div id="settings-content" class="space-y-4"></div></div></div></div>
     
     <!-- Domain, Rename, Delete are injected here or reused below -->
@@ -238,6 +239,9 @@
                         const d = snap.data();
                         document.getElementById('header-user-avatar').src = d.avatar || "https://via.placeholder.com/100";
                         document.getElementById('menu-username').textContent = d.username || "Usuario";
+                    } else {
+                        // Create default if not exists
+                        setDoc(pRef, { username: "Usuario", email: user.email, avatar: "https://via.placeholder.com/100" });
                     }
                     document.getElementById('menu-email').textContent = user.email;
                 });
@@ -280,7 +284,7 @@
             const e=document.getElementById('reg-email').value, p=document.getElementById('reg-password').value, u=document.getElementById('reg-username').value;
             try { document.getElementById('loading-overlay').classList.add('active'); const c=await createUserWithEmailAndPassword(auth, e, p); 
             await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'usernames', u), {uid:c.user.uid});
-            await setDoc(doc(db, 'artifacts', appId, 'users', c.user.uid, 'profile', 'info'), {username:u, email:e, avatar:"https://ui-avatars.com/api/?name="+u});
+            await setDoc(doc(db, 'artifacts', appId, 'users', c.user.uid, 'profile', 'info'), {username:u, email:e, avatar:"https://ui-avatars.com/api/?name="+u+"&background=random"});
             } catch(err){ alert(err.message); document.getElementById('loading-overlay').classList.remove('active'); }
         };
 
@@ -298,12 +302,17 @@
             
             if(type === 'profile') {
                 t.textContent = 'Editar Perfil';
-                c.innerHTML = `<div class="space-y-3"><div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">Avatar URL</label><input type="text" id="setting-avatar" class="apple-input w-full px-3 py-2 rounded-lg text-sm" value="${document.getElementById('header-user-avatar').src}"></div></div><button onclick="saveUserProfileSettings()" class="w-full bg-[#007AFF] text-white py-2 rounded-lg text-sm mt-4">Guardar</button>`;
+                c.innerHTML = `<div class="space-y-3">
+                        <div class="flex justify-center mb-4"><img id="setting-avatar-preview" src="${document.getElementById('header-user-avatar').src}" class="w-24 h-24 rounded-full object-cover border-4 shadow-sm"></div>
+                        <input type="text" id="setting-avatar" class="apple-input w-full px-3 py-2 rounded-lg text-sm" placeholder="URL de imagen" oninput="document.getElementById('setting-avatar-preview').src = this.value" value="${document.getElementById('header-user-avatar').src}">
+                        <div class="relative"><input type="file" id="setting-file" class="hidden" onchange="handleUserAvatarFileSelect(this)"><label for="setting-file" class="block text-center text-sm text-[#007AFF] cursor-pointer font-medium hover:underline">Subir desde dispositivo</label></div>
+                    </div><button onclick="saveUserProfileSettings()" class="w-full bg-[#007AFF] text-white py-2 rounded-lg text-sm mt-4">Guardar</button>`;
             } else {
                 t.textContent = 'Configuración';
                 c.innerHTML = `<div class="space-y-4"><button onclick="alert('Función próximamente')" class="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-xl text-sm font-medium flex justify-between items-center">Cambiar Correo <i class="ph-bold ph-envelope-simple"></i></button><button onclick="if(confirm('¿Borrar cuenta?')) alert('Contacta soporte')" class="w-full text-left px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-medium flex justify-between items-center">Eliminar Cuenta <i class="ph-bold ph-trash"></i></button></div>`;
             }
         };
+        window.handleUserAvatarFileSelect = (input) => { if(input.files[0]) { const r=new FileReader(); r.onload=e=>{document.getElementById('setting-avatar-preview').src=e.target.result; document.getElementById('setting-avatar').value=e.target.result;}; r.readAsDataURL(input.files[0]); } };
         window.closeUserSettingsModal = () => document.getElementById('user-settings-modal').classList.add('hidden');
         window.saveUserProfileSettings = async () => {
              const av = document.getElementById('setting-avatar').value;
@@ -314,7 +323,7 @@
         window.createNewPage = async () => {
             if(!window.currentUser) return;
             const newId = crypto.randomUUID();
-            const newPage = { name: 'Nueva Página', slug: 'pagina-'+Date.now(), active: true, archived: false, data: { profile: { name: "Usuario", bio: "Hola", avatar: "https://via.placeholder.com/150" }, design: { theme: 'snow', buttonStyle: 'rounded-xl' }, sections: [{id:'profile', label:'Perfil', enabled:true}, {id:'socials', label:'Social', enabled:true}, {id:'links', label:'Enlaces', enabled:true}, {id:'products', label:'Tienda', enabled:true}], links: [], socials: [], categories: [], products: [] } };
+            const newPage = { name: 'Nueva Página', slug: 'pagina-'+Date.now(), active: true, archived: false, data: { profile: { name: "Usuario", bio: "Hola", avatar: `https://ui-avatars.com/api/?name=Usuario&background=random` }, design: { theme: 'snow', buttonStyle: 'rounded-xl' }, sections: [{id:'profile', label:'Perfil', enabled:true}, {id:'socials', label:'Social', enabled:true}, {id:'links', label:'Enlaces', enabled:true}, {id:'products', label:'Tienda', enabled:true}], links: [], socials: [], categories: [], products: [] } };
             await setDoc(doc(db, 'artifacts', appId, 'users', window.currentUser.uid, 'pages', newId), newPage);
             window.editPage(newId);
         };
@@ -397,8 +406,8 @@
         window.renderSocialIconGrid = () => { const g=document.getElementById('social-modal-icon-grid'); g.innerHTML=''; ICON_MAP.forEach(i => g.innerHTML+=`<button onclick="selectedSocialIconInModal='${i.id}';renderSocialIconGrid()" class="icon-option aspect-square rounded-xl flex items-center justify-center text-xl text-gray-600 ${window.selectedSocialIconInModal===i.id?'selected':'bg-gray-50 border border-transparent'}"><i class="ph-bold ${i.id}"></i></button>`); };
         window.autoDetectIconInSocialModal = (url) => { const i=window.getIconForUrl(url); if(i!=='ph-link') { window.selectedSocialIconInModal=i; window.renderSocialIconGrid(); } };
 
-        window.renderEditorProducts = () => { const c=document.getElementById('products-editor-container'); c.innerHTML=''; window.appState.products.forEach(p=>{const op=p.visible?'':'opacity-50'; c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2 ${op}"><i class="ph-bold ph-dots-six-vertical text-gray-400 drag-handle"></i><img src="${p.img}" class="w-8 h-8 rounded object-cover"><span class="flex-1 text-sm font-medium">${p.title}</span><button onclick="toggleProductVisibility(${p.id})" class="p-2"><i class="ph-bold ${p.visible?'ph-eye':'ph-eye-slash'}"></i></button><button onclick="openProductModal(${p.id})" class="p-2"><i class="ph-bold ph-pencil-simple"></i></button><button onclick="openDeleteModal('product', ${p.id})" class="p-2 hover:text-red-500"><i class="ph-bold ph-trash"></i></button></div>`;}); };
-        window.addProduct = () => { const id=Date.now(); window.appState.products.push({id, title:'Producto', price:'$0', url:'', img:'https://via.placeholder.com/150', categoryId:null, available:true, visible:true, showPrice:true}); window.renderEditorProducts(); window.renderPreview(); window.openProductModal(id); };
+        window.renderEditorProducts = () => { const c=document.getElementById('products-editor-container'); c.innerHTML=''; window.appState.products.forEach(p=>{const op=p.visible?'':'opacity-50'; c.innerHTML+=`<div class="bg-white p-3 rounded-xl border flex items-center gap-2 ${op}"><i class="ph-bold ph-dots-six-vertical text-gray-400 drag-handle"></i><img src="${p.img}" class="w-8 h-8 rounded object-cover"><span class="flex-1 text-sm font-medium">${p.title}</span><button onclick="toggleProductVisibility(${p.id})" class="p-2"><i class="ph-bold ${p.visible?'ph-eye':'ph-eye-slash'}"></i></button><button onclick="openProductModal(${p.id})" class="p-2"><i class="ph-bold ph-pencil-simple"></i></button><button onclick="openDeleteModal('product', ${p.id})" class="p-2 hover:text-red-500"><i class="ph-bold ph-trash text-lg"></i></button></div>`;}); };
+        window.addProduct = () => { const id=Date.now(); window.appState.products.push({id, title:'Producto', price:'$0', url:'', img:`https://ui-avatars.com/api/?name=Producto&background=random`, categoryId:null, available:true, visible:true, showPrice:true}); window.renderEditorProducts(); window.renderPreview(); window.openProductModal(id); };
         window.openProductModal = (id) => { 
             const p=window.appState.products.find(x=>x.id===id); if(!p) return; window.currentEditingProductId=id; 
             document.getElementById('modal-product-title').value=p.title; document.getElementById('modal-product-price').value=p.price; document.getElementById('modal-product-url').value=p.url; document.getElementById('modal-product-img').value=''; document.getElementById('modal-product-preview').src=p.img; document.getElementById('modal-product-available').value=p.available.toString(); document.getElementById('modal-product-showPrice').checked=p.showPrice!==false;
@@ -406,7 +415,11 @@
             document.getElementById('edit-product-modal').classList.remove('hidden'); 
         };
         window.closeProductModal = () => document.getElementById('edit-product-modal').classList.add('hidden');
-        window.saveProduct = () => { const p=window.appState.products.find(x=>x.id===window.currentEditingProductId); if(p) { p.title=document.getElementById('modal-product-title').value; p.price=document.getElementById('modal-product-price').value; p.url=document.getElementById('modal-product-url').value; if(document.getElementById('modal-product-img').value) p.img=document.getElementById('modal-product-img').value; else if(document.getElementById('modal-product-preview').src) p.img=document.getElementById('modal-product-preview').src; p.categoryId=parseInt(document.getElementById('modal-product-category').value)||null; p.available=document.getElementById('modal-product-available').value==='true'; p.showPrice=document.getElementById('modal-product-showPrice').checked; } window.renderEditorProducts(); window.renderPreview(); window.closeProductModal(); };
+        window.saveProduct = () => { 
+            if(!window.currentEditingProductId) return; const p = window.appState.products.find(x => x.id === window.currentEditingProductId);
+            if(p) { p.title=document.getElementById('modal-product-title').value; p.price=document.getElementById('modal-product-price').value; p.url=document.getElementById('modal-product-url').value; if(document.getElementById('modal-product-img').value) p.img=document.getElementById('modal-product-img').value; else if(document.getElementById('modal-product-preview').src) p.img=document.getElementById('modal-product-preview').src; p.categoryId=parseInt(document.getElementById('modal-product-category').value)||null; p.available=document.getElementById('modal-product-available').value==='true'; p.showPrice=document.getElementById('modal-product-showPrice').checked; } 
+            window.renderEditorProducts(); window.renderPreview(); window.closeProductModal(); 
+        };
         window.handleProductFileSelect = (i) => { if(i.files[0]) { const r=new FileReader(); r.onload=e=>document.getElementById('modal-product-preview').src=e.target.result; r.readAsDataURL(i.files[0]); } };
         window.toggleProductVisibility = (id) => { const p=window.appState.products.find(x=>x.id===id); if(p) { p.visible=!p.visible; window.renderEditorProducts(); window.renderPreview(); } };
 
@@ -489,9 +502,11 @@
         window.renderProductCard = (p, t) => {
              const r = window.appState.design.buttonStyle === 'rounded-full' ? 'rounded-2xl' : window.appState.design.buttonStyle;
              const price = p.showPrice ? `<span class="text-xs font-semibold px-2 py-1 rounded-md bg-gray-100 text-gray-600">${p.price}</span>` : '';
-             const badge = p.available ? '' : '<span class="absolute top-2 right-2 bg-gray-500 text-white text-[10px] px-2 py-0.5 rounded-full">Agotado</span>';
+             const badge = p.available ? `<span class="absolute top-2 right-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full z-10">Disponible</span>` : '<span class="absolute top-2 right-2 bg-gray-500 text-white text-[10px] px-2 py-0.5 rounded-full z-10">Agotado</span>';
              const op = p.available ? '' : 'grayscale opacity-60';
-             return `<a href="${p.url}" class="block w-full bg-white ${r} overflow-hidden shadow-sm mb-3 relative ${op}">${badge}<div class="h-40 bg-gray-100"><img src="${p.img}" class="w-full h-full object-cover"></div><div class="p-3 flex justify-between items-center"><span class="font-bold text-gray-900 truncate flex-1">${p.title}</span>${price}</div></a>`;
+             let catName = ''; if(p.categoryId) { const c = window.appState.categories.find(cat => cat.id === p.categoryId); if(c) catName = c.name; }
+             
+             return `<a href="${p.url}" class="block w-full bg-white ${r} overflow-hidden shadow-sm mb-3 relative ${op}">${badge}<div class="h-40 bg-gray-100"><img src="${p.img}" class="object-cover w-full h-full"></div><div class="p-3"><div class="flex justify-between items-center mb-1"><span class="font-bold text-gray-900 truncate flex-1">${p.title}</span>${price}</div>${catName ? `<p class="text-[10px] uppercase tracking-wider font-semibold opacity-50 text-gray-900">${catName}</p>` : ''}</div></a>`;
         };
 
         window.publishPage = () => {
