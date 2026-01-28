@@ -185,10 +185,10 @@
     </div>
 
     <!-- MODALS -->
-    <!-- User Settings Modal (UPDATED) -->
+    <!-- User Settings Modal -->
     <div id="user-settings-modal" class="fixed inset-0 z-[70] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeUserSettingsModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><div class="flex justify-between mb-4"><h3 class="text-lg font-bold" id="settings-title">Configuración</h3><button onclick="closeUserSettingsModal()"><i class="ph-bold ph-x"></i></button></div><div id="settings-content" class="space-y-4"></div></div></div></div>
     
-    <!-- Domain, Rename, Delete are injected here or reused below -->
+    <!-- Domain Modal, Rename, Delete are injected here or reused below -->
     <div id="delete-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeDeleteModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 text-center"><div class="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center mx-auto mb-4"><i class="ph-bold ph-trash text-2xl"></i></div><h3 class="text-lg font-bold mb-2">¿Eliminar elemento?</h3><div class="grid grid-cols-2 gap-3 pt-2"><button onclick="closeDeleteModal()" class="px-4 py-2.5 rounded-xl text-sm bg-gray-100">Cancelar</button><button onclick="confirmDeleteAction()" class="px-4 py-2.5 rounded-xl text-sm font-medium text-white bg-red-500">Eliminar</button></div></div></div></div>
 
     <div id="rename-modal" class="fixed inset-0 z-[60] hidden"><div class="absolute inset-0 modal-backdrop" onclick="closeRenameModal()"></div><div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none"><div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl pointer-events-auto p-6 flex flex-col"><h3 class="text-lg font-bold mb-4">Renombrar Página</h3><input type="text" id="rename-input" class="apple-input w-full px-4 py-2.5 rounded-xl text-sm mb-6" placeholder="Nuevo nombre"><div class="flex justify-end gap-3"><button onclick="closeRenameModal()" class="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100">Cancelar</button><button onclick="confirmRename()" class="px-4 py-2 rounded-xl text-sm font-medium text-white bg-[#007AFF]">Guardar</button></div></div></div></div>
